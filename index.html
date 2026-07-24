@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>이음 검정고시 퀘스트 🎓</title>
+<style>
+  :root{
+    --green:#58cc02; --green-d:#4aa802; --green-l:#d7ffb8;
+    --red:#ff4b4b; --red-l:#ffdfe0;
+    --blue:#1cb0f6; --blue-d:#1899d6;
+    --purple:#a560ff; --purple-d:#8a3ffb; --purple-l:#efe3ff;
+    --gray:#e5e5e5; --gray-d:#afafaf;
+    --ink:#3c3c3c; --gold:#ffc800;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:'Segoe UI','Malgun Gothic',system-ui,sans-serif;
+    background:#fff; color:var(--ink);
+    display:flex; justify-content:center; min-height:100vh;
+    -webkit-user-select:none; user-select:none;
+  }
+  #app{width:100%; max-width:480px; display:flex; flex-direction:column; min-height:100vh; padding:16px;}
+
+  /* 테마: 과목별 강조색 */
+  body.soc{--accent:var(--purple); --accent-d:var(--purple-d); --accent-l:var(--purple-l);}
+  body.en {--accent:var(--blue);   --accent-d:var(--blue-d);   --accent-l:#e6f6ff;}
+
+  /* 공통 버튼 */
+  .btn{
+    border:none; border-radius:16px; font-size:18px; font-weight:800;
+    padding:15px; cursor:pointer; width:100%;
+    box-shadow:0 4px 0 rgba(0,0,0,.18); transition:transform .05s, box-shadow .05s;
+    letter-spacing:.5px;
+  }
+  .btn:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.18);}
+  .btn-green{background:var(--green); color:#fff;}
+  .btn-green:disabled{background:var(--gray); color:var(--gray-d); box-shadow:0 4px 0 #d0d0d0; cursor:default;}
+  .btn-gray{background:#fff; color:var(--ink); border:2px solid var(--gray); box-shadow:0 4px 0 var(--gray);}
+
+  /* 시작화면 */
+  #start{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:16px;}
+  #start .cap{font-size:84px; animation:bob 2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  #start h1{font-size:28px; color:var(--green-d);}
+  #start .sub{color:var(--gray-d); font-size:14px; line-height:1.5;}
+  .stat-row{display:flex; gap:12px; margin:2px 0 4px;}
+  .chip{background:#fff7e0; border:2px solid var(--gold); border-radius:14px; padding:8px 14px; font-weight:800; font-size:14px;}
+  .chip.streak{background:#ffe9e0; border-color:#ff9600;}
+  .pick{width:100%; max-width:300px; display:flex; flex-direction:column; gap:12px; margin-top:4px;}
+  .subj-btn{
+    border:none; border-radius:18px; padding:18px; cursor:pointer; width:100%;
+    font-size:20px; font-weight:900; color:#fff; text-align:left;
+    display:flex; align-items:center; gap:14px; box-shadow:0 5px 0 rgba(0,0,0,.18);
+    transition:transform .05s, box-shadow .05s;
+  }
+  .subj-btn:active{transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.18);}
+  .subj-btn .ico{font-size:34px;}
+  .subj-btn .sm{display:block; font-size:12px; font-weight:700; opacity:.9; margin-top:2px;}
+  .subj-en{background:var(--blue);}
+  .subj-soc{background:var(--purple);}
+  .cheer-line{font-size:14px; color:var(--purple-d); font-weight:800; min-height:20px;}
+
+  /* 상단바 */
+  #topbar{display:none; align-items:center; gap:12px; margin-bottom:18px;}
+  #quit{font-size:26px; color:var(--gray-d); cursor:pointer; background:none; border:none; font-weight:700;}
+  #bar-wrap{flex:1; height:16px; background:var(--gray); border-radius:10px; overflow:hidden;}
+  #bar{height:100%; width:0; background:var(--accent,var(--green)); border-radius:10px; transition:width .3s;}
+  #hearts{font-size:20px; white-space:nowrap;}
+
+  /* 퀴즈 */
+  #quiz{display:none; flex:1; flex-direction:column;}
+  .qtype{font-size:13px; font-weight:800; color:var(--accent,var(--blue)); letter-spacing:1px; margin-bottom:6px;}
+  .qtext{font-size:22px; font-weight:800; line-height:1.45; margin-bottom:8px;}
+  .passage{background:#f0f4fa; border-radius:14px; padding:14px 16px; font-size:16px; color:#2d3c5a; line-height:1.55; margin-bottom:14px;}
+  .speak-btn{background:var(--blue); color:#fff; border:none; border-radius:14px; padding:12px 18px; font-size:18px; cursor:pointer; box-shadow:0 4px 0 var(--blue-d); margin-bottom:16px; display:inline-flex; align-items:center; gap:8px; font-weight:800;}
+  .speak-btn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--blue-d);}
+  #opts{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .opt{
+    background:#fff; border:2px solid var(--gray); border-bottom-width:4px;
+    border-radius:14px; padding:15px 18px; font-size:17px; font-weight:700; text-align:left;
+    cursor:pointer; transition:.1s;
+  }
+  .opt.sel{border-color:var(--accent,var(--blue)); background:var(--accent-l,#e6f6ff);}
+  .opt.correct{border-color:var(--green); background:var(--green-l); color:var(--green-d);}
+  .opt.wrong{border-color:var(--red); background:var(--red-l); color:var(--red);}
+  .opt.dim{opacity:.5;}
+
+  /* 피드백 배너 */
+  #feedback{position:fixed; left:0; right:0; bottom:0; padding:20px 16px 26px; transform:translateY(110%); transition:transform .25s; z-index:5;}
+  #feedback.show{transform:translateY(0);}
+  #feedback.ok{background:var(--green-l);}
+  #feedback.no{background:var(--red-l);}
+  #fb-inner{max-width:480px; margin:0 auto;}
+  #fb-title{font-size:21px; font-weight:900; margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  #feedback.ok #fb-title{color:var(--green-d);}
+  #feedback.no #fb-title{color:var(--red);}
+  #fb-msg{font-size:15px; margin-bottom:14px; line-height:1.45;}
+  #feedback.no #fb-msg{color:#c33;}
+  #fb-msg .note{display:block; color:#555; font-weight:600; margin-top:6px; font-size:14px;}
+  #feedback.no #fb-msg .note{color:#a55;}
+
+  #footer{margin-top:auto; padding-top:16px;}
+
+  /* 결과 */
+  #result{display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px;}
+  #result .emoji{font-size:88px;}
+  #result h2{font-size:24px; color:var(--green-d); line-height:1.35;}
+  #r-cheer{font-size:15px; color:var(--purple-d); font-weight:800; line-height:1.5;}
+  .score-cards{display:flex; gap:12px; width:100%;}
+  .score-card{flex:1; border:2px solid var(--gray); border-radius:16px; padding:14px 8px;}
+  .score-card .lbl{font-size:12px; color:var(--gray-d); font-weight:700;}
+  .score-card .val{font-size:24px; font-weight:900; margin-top:4px;}
+  .pop{animation:pop .4s ease;}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+  .shake{animation:shake .4s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 상단바 -->
+  <div id="topbar">
+    <button id="quit">✕</button>
+    <div id="bar-wrap"><div id="bar"></div></div>
+    <div id="hearts"></div>
+  </div>
+
+  <!-- 시작 -->
+  <div id="start">
+    <div class="cap">🎓</div>
+    <h1>이음 검정고시 퀘스트</h1>
+    <p class="sub">중졸 검정고시 기출 유형을 게임으로!<br>한 판 10문제 · 하트 5개 · 목표는 만점 🎨</p>
+    <div class="stat-row">
+      <div class="chip">⭐ 최고 <span id="best">0</span> XP</div>
+      <div class="chip streak">🔥 <span id="streak">0</span>일 연속</div>
+    </div>
+    <div class="cheer-line" id="home-cheer"></div>
+    <div class="pick">
+      <button class="subj-btn subj-en" onclick="startGame('en')">
+        <span class="ico">🔤</span><span>영어<span class="sm">어휘 · 문법 · 회화 · 독해</span></span>
+      </button>
+      <button class="subj-btn subj-soc" onclick="startGame('soc')">
+        <span class="ico">🌏</span><span>사회<span class="sm">지리 · 일반사회 · 역사</span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 퀴즈 -->
+  <div id="quiz">
+    <div class="qtype" id="qtype"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="qextra"></div>
+    <div id="opts"></div>
+    <div id="footer">
+      <button class="btn btn-green" id="check" disabled onclick="check()">확인</button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="result">
+    <div class="emoji" id="r-emoji">🎉</div>
+    <h2 id="r-title">참 잘했어!</h2>
+    <div id="r-cheer"></div>
+    <div class="score-cards">
+      <div class="score-card"><div class="lbl">획득 XP</div><div class="val" style="color:var(--gold)" id="r-xp">0</div></div>
+      <div class="score-card"><div class="lbl">정답</div><div class="val" style="color:var(--green)" id="r-correct">0/10</div></div>
+      <div class="score-card"><div class="lbl">최고 콤보</div><div class="val" style="color:var(--red)" id="r-combo">0</div></div>
+    </div>
+    <div id="r-review" style="width:100%; text-align:left; font-size:14px; color:var(--gray-d);"></div>
+    <button class="btn btn-green" style="max-width:280px" id="again" onclick="startGame(curSubject)">한 판 더! 🔁</button>
+    <button class="btn btn-gray" style="max-width:280px" onclick="goHome()">과목 다시 고르기</button>
+  </div>
+
+  <!-- 피드백 -->
+  <div id="feedback">
+    <div id="fb-inner">
+      <div id="fb-title"></div>
+      <div id="fb-msg"></div>
+      <button class="btn btn-green" id="cont" onclick="next()">계속</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================
+   문제 은행 — 중졸 검정고시 기출 유형
+   t: 유형표시  q: 문제  o: 보기  a: 정답  ex: 해설
+   sp: (영어) 발음 들려줄 단어   p: 독해 지문
+   ========================================================= */
+
+const BANK_EN = [
+  /* --- 어휘 --- */
+  {t:"어휘", q:"'difficult'의 뜻은?", sp:"difficult", o:["어려운","쉬운","즐거운","중요한"], a:"어려운"},
+  {t:"어휘", q:"'weather'의 뜻은?", sp:"weather", o:["날씨","계절","요일","시간"], a:"날씨"},
+  {t:"어휘", q:"'famous'의 뜻은?", sp:"famous", o:["유명한","가난한","위험한","조용한"], a:"유명한"},
+  {t:"어휘", q:"'always'의 뜻은?", sp:"always", o:["항상","가끔","전혀","곧"], a:"항상"},
+  {t:"어휘", q:"'begin'과 뜻이 비슷한 말은?", sp:"begin", o:["start","end","stop","close"], a:"start", ex:"begin = start (시작하다)."},
+  {t:"어휘", q:"'expensive'의 반대말은?", sp:"expensive", o:["cheap","big","high","heavy"], a:"cheap", ex:"expensive(비싼) ↔ cheap(싼)."},
+  {t:"어휘", q:"'safe'의 반대말은?", sp:"safe", o:["dangerous","clean","quiet","happy"], a:"dangerous", ex:"safe(안전한) ↔ dangerous(위험한)."},
+
+  /* --- 문법 --- */
+  {t:"문법", q:"He ___ soccer every Sunday.", o:["plays","play","playing","played"], a:"plays", ex:"He(3인칭 단수)+반복되는 일 → plays."},
+  {t:"문법", q:"This box is ___ than that one.", o:["heavier","heavy","heaviest","much heavy"], a:"heavier", ex:"than이 있으면 비교급 → heavier."},
+  {t:"문법", q:"Look! The baby ___ now.", o:["is sleeping","sleep","slept","sleeps"], a:"is sleeping", ex:"now(지금) → 현재진행형 is sleeping."},
+  {t:"문법", q:"There ___ some milk in the cup.", o:["is","are","am","be"], a:"is", ex:"milk(셀 수 없는 명사) → is."},
+  {t:"문법", q:"She has lived here ___ 2015.", o:["since","for","in","at"], a:"since", ex:"since + 시작 시점(2015년부터)."},
+  {t:"문법", q:"If it rains tomorrow, I ___ at home.", o:["will stay","stayed","staying","stays"], a:"will stay", ex:"If ~ 미래의 일 → will stay."},
+  {t:"문법", q:"I'm interested ___ drawing.", o:["in","on","at","of"], a:"in", ex:"be interested in ~ (~에 관심 있다)."},
+  {t:"문법", q:"My sister is good ___ English.", o:["at","in","on","to"], a:"at", ex:"be good at ~ (~를 잘하다)."},
+  {t:"문법", q:"Both Tom ___ Jane are my friends.", o:["and","or","but","so"], a:"and", ex:"both A and B (A와 B 둘 다)."},
+  {t:"문법", q:"A: Whose bag is this?  B: It's ___.", o:["mine","my","me","I"], a:"mine", ex:"'내 것' → mine."},
+
+  /* --- 회화 --- */
+  {t:"회화", q:"A: How was your weekend?  B: ___", o:["It was great.","I'm 14.","It's Friday.","Yes, I do."], a:"It was great.", ex:"주말이 어땠는지 묻는 말의 대답."},
+  {t:"회화", q:"A: Would you like some tea?  B: ___", o:["No, thanks.","Nice to meet you.","It's mine.","You're welcome."], a:"No, thanks.", ex:"권유를 거절하는 대답."},
+  {t:"회화", q:"A: What's wrong?  B: ___", o:["I have a cold.","I'm from Korea.","It's Monday.","Yes, please."], a:"I have a cold.", ex:"무슨 일이냐고 걱정하는 물음의 대답."},
+  {t:"회화", q:"A: How often do you exercise?  B: ___", o:["Three times a week.","At the park.","With my mom.","Yes, I do."], a:"Three times a week.", ex:"How often(얼마나 자주) → 횟수로 대답."},
+  {t:"회화", q:"A: May I help you?  B: ___", o:["Yes, I'm looking for a cap.","I'm fine, thanks.","It's ten o'clock.","Nice to meet you."], a:"Yes, I'm looking for a cap.", ex:"가게 점원의 물음에 대한 대답."},
+
+  /* --- 독해 --- */
+  {t:"독해", q:"미나의 장래희망은?", p:"My name is Mina. I'm 15. I love drawing cartoons. I want to be a webtoon artist.", o:["웹툰 작가","화가","가수","선생님"], a:"웹툰 작가", ex:"webtoon artist = 웹툰 작가."},
+  {t:"독해", q:"도서관이 문을 닫는 날은?", p:"The library is open from 9 a.m. to 6 p.m. It is closed on Mondays.", o:["월요일","일요일","토요일","금요일"], a:"월요일", ex:"closed on Mondays = 월요일 휴관."},
+  {t:"독해", q:"이 안내문을 볼 수 있는 곳은?", p:"Please be quiet. Turn off your phone. Do not eat or drink here.", o:["도서관","운동장","놀이터","시장"], a:"도서관", ex:"조용히·휴대폰 끄기·음식 금지 → 도서관."},
+
+  /* --- 실용영어(표지) --- */
+  {t:"실용", q:"'No Parking' 표지판의 뜻은?", sp:"No Parking", o:["주차 금지","출입 금지","낚시 금지","촬영 금지"], a:"주차 금지"},
+  {t:"실용", q:"문에 붙은 'PUSH'의 뜻은?", sp:"push", o:["미시오","당기시오","잠김","고장"], a:"미시오", ex:"push=미시오, pull=당기시오."},
+];
+
+const BANK_SOC = [
+  /* --- 지리 --- */
+  {t:"지리", q:"위도 0°로, 지구를 남·북으로 나누는 기준선은?", o:["적도","본초 자오선","날짜 변경선","북회귀선"], a:"적도", ex:"위도의 기준(0°)은 적도."},
+  {t:"지리", q:"경도의 기준(0°)이 되는 선은?", o:["본초 자오선","적도","날짜 변경선","위선"], a:"본초 자오선", ex:"경도의 기준은 영국을 지나는 본초 자오선."},
+  {t:"지리", q:"세계에서 가장 넓은 대륙은?", o:["아시아","아프리카","유럽","남아메리카"], a:"아시아"},
+  {t:"지리", q:"연중 덥고 비가 많아 밀림이 우거지는 기후는?", o:["열대 기후","건조 기후","냉대 기후","한대 기후"], a:"열대 기후"},
+  {t:"지리", q:"강수량이 매우 적어 사막이 나타나는 기후는?", o:["건조 기후","열대 기후","온대 기후","툰드라 기후"], a:"건조 기후"},
+  {t:"지리", q:"우리나라처럼 사계절이 뚜렷한 기후는?", o:["온대 기후","열대 기후","한대 기후","건조 기후"], a:"온대 기후"},
+
+  /* --- 일반사회 --- */
+  {t:"일반사회", q:"국가 권력을 입법·행정·사법으로 나누는 원리는?", o:["삼권 분립","지방 자치","다수결","국민 투표"], a:"삼권 분립", ex:"권력 남용을 막기 위한 삼권 분립."},
+  {t:"일반사회", q:"주권이 국민에게 있는 정치 형태는?", o:["민주주의","군주제","독재","귀족제"], a:"민주주의", ex:"국민이 주인 → 민주주의."},
+  {t:"일반사회", q:"국민의 기본권을 규정한 우리나라 최고의 법은?", o:["헌법","민법","형법","상법"], a:"헌법", ex:"헌법은 모든 법의 바탕이 되는 최고법."},
+  {t:"일반사회", q:"국회가 하는 가장 대표적인 일은?", o:["법을 만든다","재판을 한다","법을 집행한다","외교를 총괄한다"], a:"법을 만든다", ex:"국회=입법(법을 만드는 기관)."},
+  {t:"일반사회", q:"선거의 4대 원칙이 아닌 것은?", o:["차등 선거","보통 선거","평등 선거","비밀 선거"], a:"차등 선거", ex:"4대 원칙: 보통·평등·직접·비밀. 차등은 아님."},
+  {t:"일반사회", q:"상품의 가격이 오르면 수요량은?", o:["줄어든다","늘어난다","변화 없다","두 배가 된다"], a:"줄어든다", ex:"수요 법칙: 가격↑ → 수요량↓."},
+  {t:"일반사회", q:"태어나면서부터 누구나 갖는 하늘이 준 권리는?", o:["인권(천부인권)","재산권","저작권","참정권"], a:"인권(천부인권)", ex:"인간이면 당연히 갖는 권리 = 인권."},
+  {t:"일반사회", q:"인간다운 생활을 국가에 요구할 수 있는 권리는?", o:["사회권","자유권","참정권","평등권"], a:"사회권", ex:"교육·복지 등 인간다운 삶을 보장받을 권리."},
+
+  /* --- 역사(한국) --- */
+  {t:"역사", q:"우리 역사상 최초의 국가는?", o:["고조선","고구려","신라","백제"], a:"고조선"},
+  {t:"역사", q:"고조선을 세운 인물은?", o:["단군왕검","주몽","박혁거세","왕건"], a:"단군왕검"},
+  {t:"역사", q:"삼국을 통일한 나라는?", o:["신라","고구려","백제","가야"], a:"신라"},
+  {t:"역사", q:"고려를 세운 인물은?", o:["왕건","이성계","궁예","견훤"], a:"왕건"},
+  {t:"역사", q:"조선을 건국한 인물은?", o:["이성계","왕건","정몽주","최영"], a:"이성계"},
+  {t:"역사", q:"훈민정음(한글)을 만든 조선의 왕은?", o:["세종대왕","태조","영조","정조"], a:"세종대왕"},
+  {t:"역사", q:"임진왜란 때 거북선으로 활약한 장군은?", o:["이순신","권율","김유신","강감찬"], a:"이순신"},
+  {t:"역사", q:"1919년 일제에 맞서 일어난 만세 운동은?", o:["3·1 운동","6·25 전쟁","4·19 혁명","동학 농민 운동"], a:"3·1 운동", ex:"1919년 3월 1일, 독립을 외친 만세 운동."},
+
+  /* --- 역사(세계) --- */
+  {t:"세계사", q:"프랑스 혁명이 내세운 3대 정신은?", o:["자유·평등·박애","자유·평화·번영","정의·질서·통일","근면·자조·협동"], a:"자유·평등·박애"},
+  {t:"세계사", q:"산업 혁명이 가장 먼저 시작된 나라는?", o:["영국","프랑스","미국","독일"], a:"영국", ex:"18세기 후반 영국에서 시작."},
+
+  /* --- 문화/사회 --- */
+  {t:"문화", q:"한 사회 구성원이 공유하는 생활 양식 전체를 뜻하는 말은?", o:["문화","법","종교","경제"], a:"문화"},
+  {t:"문화", q:"다른 문화를 그 사회 입장에서 이해하려는 태도는?", o:["문화 상대주의","자문화 중심주의","문화 사대주의","문화 제국주의"], a:"문화 상대주의", ex:"'그 나라 입장에서' 이해 = 문화 상대주의."},
+  {t:"일반사회", q:"지역의 일을 그 주민이 스스로 처리하는 제도는?", o:["지방 자치","삼권 분립","중앙 집권","국민 투표"], a:"지방 자치"},
+];
+
+/* ===== 응원 메시지 ===== */
+const CHEER_OK = [
+  "완벽해! 🎨","이 기세면 만점이야!","역시 이음이! 👏","천재 아니야? 🤩",
+  "애니고가 기다린다! 🎬","지금처럼만 하면 돼!","오늘도 한 뼘 성장 🌱","멋지다 진짜!",
+  "가볍게 넘겼네 😎","시험날에도 이렇게! 💪","척척박사네 📚","기분 좋다, 다음!"
+];
+const CHEER_COMBO = [
+  "불타오른다 🔥","콤보 미쳤다!","멈추지 마 🚀","연속 정답 실화?","이대로 쭉 가자!"
+];
+const ENCOURAGE_NO = [
+  "괜찮아, 지금 알면 이득이야 💛","틀린 문제가 진짜 실력이 돼 🌱","지금 틀리면 시험날엔 맞아!",
+  "하나 배웠으니 남는 장사 👍","천천히 다시 보면 보여!","실수는 성장하는 중이라는 신호 ✨",
+  "이 문제는 이제 네 거야 🔖"
+];
+const HOME_CHEER = [
+  "오늘도 한 판이면 애니고 한 걸음 🎨","짧게라도 매일! 그게 비법이야 🔥",
+  "만점 이음이 될 준비 됐어? ✨","어제보다 딱 한 문제만 더 💪","할 수 있어. 늘 그랬잖아 🌟"
+];
+
+const LESSON=10, MAXHEART=5;
+let curSubject='en';
+let deck=[], idx=0, hearts=MAXHEART, xp=0, combo=0, maxCombo=0, correctCnt=0, selected=null, answered=false, wrongList=[];
+
+const $=id=>document.getElementById(id);
+const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+const best=()=>+(localStorage.getItem('gq_best')||0);
+
+function loadHome(){
+  document.body.className='';
+  $('best').textContent=best();
+  $('streak').textContent=+(localStorage.getItem('gq_streak')||0);
+  $('home-cheer').textContent=pick(HOME_CHEER);
+}
+function bumpStreak(){
+  const today=new Date().toDateString();
+  const last=localStorage.getItem('gq_lastday');
+  let s=+(localStorage.getItem('gq_streak')||0);
+  if(last!==today){
+    const y=new Date(Date.now()-86400000).toDateString();
+    s = (last===y)? s+1 : 1;
+    localStorage.setItem('gq_streak',s);
+    localStorage.setItem('gq_lastday',today);
+  }
+  return s;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startGame(subject){
+  curSubject=subject;
+  document.body.className = subject; // 테마색
+  const bank = subject==='soc'? BANK_SOC : BANK_EN;
+  deck=shuffle([...bank]).slice(0,LESSON);
+  idx=0; hearts=MAXHEART; xp=0; combo=0; maxCombo=0; correctCnt=0; wrongList=[];
+  $('start').style.display='none'; $('result').style.display='none';
+  $('quiz').style.display='flex'; $('topbar').style.display='flex';
+  render();
+}
+function goHome(){
+  $('quiz').style.display='none'; $('result').style.display='none'; $('topbar').style.display='none';
+  $('start').style.display='flex'; loadHome();
+}
+
+function render(){
+  answered=false; selected=null;
+  const q=deck[idx];
+  $('bar').style.width=(idx/LESSON*100)+'%';
+  $('hearts').textContent='❤️'.repeat(hearts)+'🤍'.repeat(MAXHEART-hearts);
+  $('qtype').textContent=(curSubject==='soc'?'사회 · ':'영어 · ')+q.t;
+  $('qtext').textContent=q.q;
+  let extra='';
+  if(q.p) extra+=`<div class="passage">📖 ${q.p}</div>`;
+  if(q.sp) extra+=`<button class="speak-btn" onclick="say('${q.sp.replace(/'/g,"\\'")}')">🔊 발음 듣기</button>`;
+  $('qextra').innerHTML=extra;
+  const opts=$('opts'); opts.innerHTML='';
+  shuffle([...q.o]).forEach(txt=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.textContent=txt;
+    b.onclick=()=>selectOpt(b,txt);
+    opts.appendChild(b);
+  });
+  const c=$('check'); c.disabled=true; c.textContent='확인';
+  if(q.sp) setTimeout(()=>say(q.sp),300);
+}
+
+function selectOpt(btn,txt){
+  if(answered) return;
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  btn.classList.add('sel'); selected=txt;
+  $('check').disabled=false;
+}
+
+function check(){
+  if(answered||selected===null) return;
+  answered=true;
+  const q=deck[idx];
+  const ok = selected===q.a;
+  document.querySelectorAll('.opt').forEach(o=>{
+    if(o.textContent===q.a) o.classList.add('correct');
+    else if(o.textContent===selected) o.classList.add('wrong');
+    else o.classList.add('dim');
+    o.onclick=null;
+  });
+  const fb=$('feedback');
+  if(ok){
+    correctCnt++; combo++; maxCombo=Math.max(maxCombo,combo);
+    xp += 10 + (combo>=3?5:0);
+    fb.className='show ok';
+    const combos = combo>=3? ` <span style="color:#ff9600">🔥${combo}콤보 · ${pick(CHEER_COMBO)}</span>` : '';
+    $('fb-title').innerHTML='✅ 정답! '+pick(CHEER_OK)+combos;
+    $('fb-msg').innerHTML = q.ex? `<span class="note">💡 ${q.ex}</span>` : '';
+  }else{
+    combo=0; hearts--;
+    wrongList.push(q);
+    fb.className='show no';
+    $('fb-title').textContent='조금 아쉬워! 💛';
+    $('fb-msg').innerHTML=`정답: <b>${q.a}</b>`
+      + (q.ex?`<span class="note">💡 ${q.ex}</span>`:'')
+      + `<span class="note" style="color:#c86">${pick(ENCOURAGE_NO)}</span>`;
+    $('quiz').classList.add('shake'); setTimeout(()=>$('quiz').classList.remove('shake'),400);
+  }
+  $('cont').textContent = (hearts<=0 && !ok) ? '결과 보기' : '계속';
+}
+
+function next(){
+  $('feedback').className='';
+  if(hearts<=0){ return finish(false); }
+  idx++;
+  if(idx>=LESSON) return finish(true);
+  render();
+}
+
+function finish(cleared){
+  $('bar').style.width='100%';
+  $('quiz').style.display='none'; $('topbar').style.display='none';
+  $('result').style.display='flex';
+  if(best()<xp) localStorage.setItem('gq_best',xp);
+  bumpStreak();
+
+  let emoji, title, cheer;
+  if(!cleared){
+    emoji='💪'; title='하트를 다 썼어!';
+    cheer='그래도 오늘 실력은 확실히 쌓였어.<br>내일 다시 도전하면 더 멀리 간다 🌱';
+  }else if(correctCnt===LESSON){
+    emoji='🏆'; title='퍼펙트! 만점이야!';
+    cheer='이대로면 애니고 합격각이다 🎨<br>진짜 자랑스러워!';
+  }else if(correctCnt>=8){
+    emoji='🎉'; title='거의 만점! 대단해';
+    cheer='틀린 몇 개만 다시 보면 완벽해.<br>이 기세 최고야 🔥';
+  }else if(correctCnt>=6){
+    emoji='😊'; title='잘하고 있어!';
+    cheer='절반 넘게 맞았어. 조금만 더 하면 쑥 오른다 💪';
+  }else{
+    emoji='🌱'; title='좋은 시작이야';
+    cheer='반복이 답이야. 틀린 문제 한 번만 더 보고 가자!<br>이음이는 할 수 있어 ✨';
+  }
+  $('r-emoji').textContent=emoji; $('r-emoji').className='emoji pop';
+  $('r-title').textContent=title;
+  $('r-cheer').innerHTML=cheer;
+  $('r-xp').textContent=xp;
+  $('r-correct').textContent=correctCnt+'/'+LESSON;
+  $('r-combo').textContent=maxCombo;
+
+  if(wrongList.length){
+    let h='<b>📌 틀린 문제 복습</b><br>';
+    wrongList.forEach(w=>{ h+=`• ${w.q} → <b style="color:var(--green-d)">${w.a}</b><br>`; });
+    $('r-review').innerHTML=h;
+  }else{
+    $('r-review').innerHTML= cleared? '<b style="color:var(--green-d)">🎊 하나도 안 틀렸어! 완벽!</b>' : '';
+  }
+}
+
+/* 영어 발음 (브라우저 TTS) */
+function say(text){
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-US'; u.rate=.9;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+$('quit').onclick=goHome;
+loadHome();
+</script>
+</body>
+</html>
