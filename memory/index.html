@@ -121,6 +121,18 @@
   #say.on{opacity:1;}
   #say .en{font-size:19px;}
   #say .sp{font-size:13px; color:#6a9c33;}
+  #say.warn{background:#fff0d9; color:var(--orange-d); flex-direction:column; gap:2px;}
+  #say.warn .en{font-size:15px;}
+  #say.warn .sp{font-size:12px; color:var(--orange-d);}
+
+  /* 발음 테스트 */
+  .tts-test{
+    background:none; border:none; color:var(--gray-d); font-size:13px;
+    text-decoration:underline; cursor:pointer; padding:6px; font-weight:700;
+  }
+  #ttsOut{font-size:12px; color:var(--gray-d); line-height:1.5; padding:0 8px; white-space:pre-line;}
+  #ttsOut.bad{color:var(--red); font-weight:800;}
+  #ttsOut.good{color:var(--green-d); font-weight:800;}
 
   /* ===== 불꽃 이펙트 ===== */
   #fx{position:fixed; inset:0; pointer-events:none; z-index:900;}
@@ -184,6 +196,8 @@
       <div class="chip" id="chipStar">⭐ 0 / 30</div>
       <div class="chip star" id="chipWord">📘 0 단어</div>
     </div>
+    <button class="tts-test" onclick="testTTS()">🔊 발음 테스트</button>
+    <div id="ttsOut"></div>
     <div id="stageList"></div>
   </div>
 
@@ -337,33 +351,62 @@ function sfxBoom(){
 }
 
 /* 영어 발음 (브라우저 TTS) */
-let enVoice = null;
+let enVoice = null, enVoices = [], ttsWorked = false, ttsWarned = false;
+
 function pickVoice(){
-  const vs = speechSynthesis.getVoices();
-  enVoice = vs.find(v=>/en[-_]US/i.test(v.lang) && /female|zira|samantha|google/i.test(v.name))
-         || vs.find(v=>/en[-_]US/i.test(v.lang))
-         || vs.find(v=>/^en/i.test(v.lang)) || null;
+  if(!('speechSynthesis' in window)) return;
+  const vs = speechSynthesis.getVoices() || [];
+  enVoices = vs.filter(v => /^en([-_]|$)/i.test(v.lang));
+  enVoice = enVoices.find(v => /en[-_]US/i.test(v.lang) && /google/i.test(v.name))
+         || enVoices.find(v => /en[-_]US/i.test(v.lang))
+         || enVoices.find(v => /en[-_]GB/i.test(v.lang))
+         || enVoices[0] || null;
 }
 if('speechSynthesis' in window){
   pickVoice();
   speechSynthesis.onvoiceschanged = pickVoice;
+  // 안드로이드는 음성 목록이 늦게 채워짐 → 몇 번 더 확인
+  [300, 900, 2000].forEach(t => setTimeout(pickVoice, t));
 }
+
 function speak(word, rate){
   if(!sound || !('speechSynthesis' in window)) return;
+  const s = window.speechSynthesis;
   try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(word);
-    u.lang = "en-US"; u.rate = rate || .85; u.pitch = 1;
-    if(enVoice) u.voice = enVoice;
-    speechSynthesis.speak(u);
+    s.cancel();
+    // 안드로이드 크롬: cancel() 직후 speak()는 씹히는 버그가 있어 한 틱 뒤에 호출
+    setTimeout(()=>{
+      try{
+        if(!enVoice) pickVoice();
+        const u = new SpeechSynthesisUtterance(word);
+        u.lang = (enVoice && enVoice.lang) || "en-US";
+        u.rate = rate || .85; u.pitch = 1; u.volume = 1;
+        if(enVoice) u.voice = enVoice;
+        let started = false;
+        u.onstart = ()=>{ started = true; ttsWorked = true; };
+        u.onerror = ()=>{ if(!ttsWorked) warnTTS(); };
+        s.speak(u);
+        setTimeout(()=>{ if(!started && !ttsWorked) warnTTS(); }, 1500);
+      }catch(e){}
+    }, 60);
   }catch(e){}
+}
+
+/* 발음이 한 번도 안 나오면 딱 한 번 안내 */
+function warnTTS(){
+  if(ttsWarned) return;
+  ttsWarned = true;
+  const box = document.getElementById("say");
+  box.classList.add("on", "warn");
+  box.querySelector(".en").textContent = "🔇 이 폰은 영어 발음이 꺼져 있어";
+  box.querySelector(".sp").textContent = " 설정 → 접근성 → 텍스트 음성 변환 → 영어 설치";
 }
 function warmup(){ // 모바일: 첫 사용자 터치에서 오디오 깨우기
   ac();
   try{
     if('speechSynthesis' in window){
-      const u = new SpeechSynthesisUtterance(" ");
-      u.volume = 0; speechSynthesis.speak(u);
+      speechSynthesis.resume();   // 안드로이드에서 큐가 멈춰 있는 경우 대비
+      pickVoice();
     }
   }catch(e){}
 }
@@ -617,8 +660,58 @@ function flip(idx, el){
   }
 }
 
+/* 발음 테스트 — 이 폰에서 영어 TTS가 되는지 진단 */
+function testTTS(){
+  const out = document.getElementById("ttsOut");
+  out.className = "";
+  if(!('speechSynthesis' in window)){
+    out.className = "bad";
+    out.textContent = "❌ 이 브라우저는 발음 기능이 없어.\n크롬으로 열어봐.";
+    return;
+  }
+  pickVoice();
+  const total = (speechSynthesis.getVoices() || []).length;
+  out.textContent = "🔎 확인 중… (음성 " + total + "개 / 영어 " + enVoices.length + "개)";
+
+  if(enVoices.length === 0){
+    out.className = "bad";
+    out.textContent =
+      "❌ 이 폰에 영어 음성이 없어 (전체 음성 " + total + "개)\n" +
+      "갤럭시: 설정 → 접근성 → 시청각 보조 →\n텍스트 음성 변환 → 기본 엔진을 'Google 음성인식 및 합성'으로\n바꾸고 언어에서 English 다운로드";
+    return;
+  }
+
+  let started = false;
+  const u = new SpeechSynthesisUtterance("apple");
+  u.lang = (enVoice && enVoice.lang) || "en-US";
+  u.rate = .8;
+  if(enVoice) u.voice = enVoice;
+  u.onstart = ()=>{
+    started = true; ttsWorked = true;
+    out.className = "good";
+    out.textContent = "✅ 발음 나온다!\n사용 중인 음성: " + (enVoice ? enVoice.name + " (" + enVoice.lang + ")" : "기본");
+  };
+  u.onerror = (e)=>{
+    out.className = "bad";
+    out.textContent = "❌ 발음 실패 (" + (e.error || "unknown") + ")\n소리(🔊) 켜져 있는지, 미디어 볼륨 확인해봐";
+  };
+  speechSynthesis.cancel();
+  setTimeout(()=>{
+    speechSynthesis.speak(u);
+    setTimeout(()=>{
+      if(!started){
+        out.className = "bad";
+        out.textContent =
+          "❌ 영어 음성은 " + enVoices.length + "개 있는데 소리가 안 나\n" +
+          "① 미디어 볼륨 올리기 ② 무음/방해금지 끄기\n③ 설정 → 접근성 → 텍스트 음성 변환에서\n   엔진을 Google로 바꾸고 English 설치";
+      }
+    }, 1800);
+  }, 60);
+}
+
 function showSay(en, ko){
   const box = document.getElementById("say");
+  box.classList.remove("warn");
   box.querySelector(".en").textContent = "🔊 " + en;
   box.querySelector(".sp").textContent = " = " + ko;
   box.classList.add("on");
