@@ -122,12 +122,42 @@
   #say .en{font-size:19px;}
   #say .sp{font-size:13px; color:#6a9c33;}
 
+  /* ===== 불꽃 이펙트 ===== */
+  #fx{position:fixed; inset:0; pointer-events:none; z-index:900;}
+  #combo{
+    position:fixed; left:50%; top:36%; z-index:950; pointer-events:none;
+    opacity:0; text-align:center; white-space:nowrap;
+    transform:translate(-50%,-50%);
+  }
+  #combo.on{animation:comboPop 1.2s ease-out;}
+  @keyframes comboPop{
+    0%  {opacity:0; transform:translate(-50%,-50%) scale(.3) rotate(-10deg);}
+    22% {opacity:1; transform:translate(-50%,-50%) scale(1.18) rotate(3deg);}
+    40% {opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0deg);}
+    78% {opacity:1; transform:translate(-50%,-56%) scale(1);}
+    100%{opacity:0; transform:translate(-50%,-78%) scale(1.05);}
+  }
+  #combo .n{
+    font-size:50px; font-weight:900; letter-spacing:1px;
+    color:var(--gold); -webkit-text-stroke:3px #fff;
+    paint-order:stroke fill;
+    text-shadow:0 4px 0 rgba(0,0,0,.18);
+  }
+  #combo .t{
+    margin-top:2px; font-size:19px; font-weight:900; color:#fff;
+    background:var(--orange); border-radius:20px; padding:5px 16px;
+    display:inline-block; box-shadow:0 4px 0 rgba(0,0,0,.15);
+  }
+  #combo.lv2 .n{color:#ff8f00;}
+  #combo.lv3 .n{color:#ff4b4b; font-size:58px;}
+  #combo.lv3 .t{background:var(--red);}
+
   /* ===== 결과 ===== */
   #result{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px;}
   #result .emo{font-size:72px;}
   #result h2{font-size:24px; color:var(--green-d);}
   #result .bigstars{font-size:38px; letter-spacing:4px;}
-  #result .msg{font-size:15px; color:var(--gray-d); line-height:1.6; padding:0 10px;}
+  #result .msg{font-size:15px; color:var(--gray-d); line-height:1.6; padding:0 10px; white-space:pre-line;}
   .wordlist{width:100%; display:flex; flex-direction:column; gap:6px; max-height:38vh; overflow-y:auto; padding:2px;}
   .wrow{
     display:flex; align-items:center; gap:10px; background:#f7fbff;
@@ -141,6 +171,8 @@
 </style>
 </head>
 <body>
+<canvas id="fx"></canvas>
+<div id="combo"><div class="n"></div><div><span class="t"></span></div></div>
 <div id="app">
 
   <!-- 시작 -->
@@ -238,6 +270,7 @@ const KEY = "ieum_memory_v1";
 let save = loadSave();
 let sound = true;
 let cur = 0, deck = [], opened = [], tries = 0, matched = 0, lock = false;
+let combo = 0, bestCombo = 0;
 
 function loadSave(){
   try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.stars) return s; }catch(e){}
@@ -247,21 +280,61 @@ function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(save)); }catch
 
 /* ================= 소리 ================= */
 let actx = null;
-function beep(freq, dur, type){
+function ac(){
+  if(!actx){
+    try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  if(actx.state === "suspended"){ try{ actx.resume(); }catch(e){} }
+  return actx;
+}
+function beep(freq, dur, type, vol, slideTo){
   if(!sound) return;
+  const a = ac(); if(!a) return;
   try{
-    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.type = type || "sine"; o.frequency.value = freq;
-    g.gain.setValueAtTime(.18, actx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, actx.currentTime + dur);
-    o.connect(g); g.connect(actx.destination);
-    o.start(); o.stop(actx.currentTime + dur);
+    const t = a.currentTime;
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type || "sine";
+    o.frequency.setValueAtTime(freq, t);
+    if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(vol == null ? .22 : vol, t);
+    g.gain.exponentialRampToValueAtTime(.0008, t + dur);
+    o.connect(g); g.connect(a.destination);
+    o.start(t); o.stop(t + dur + .02);
   }catch(e){}
 }
-function sfxOK(){ beep(660,.12); setTimeout(()=>beep(880,.16),90); }
-function sfxNo(){ beep(200,.18,"square"); }
-function sfxClear(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.18),i*110)); }
+/* 카드 뒤집는 '톡' 소리 — 첫 장/둘째 장 음이 다름 */
+function sfxFlip(second){
+  beep(second ? 700 : 520, .09, "triangle", .3, second ? 940 : 700);
+  beep(second ? 1400 : 1040, .05, "sine", .1);
+}
+/* 정답 — 콤보가 오를수록 음계가 위로 */
+const SCALE = [523,587,659,784,880,988,1175,1319,1568];
+function sfxOK(c){
+  const b = SCALE[Math.min(c, SCALE.length-1)];
+  beep(b, .13, "sine", .25);
+  setTimeout(()=>beep(b*1.5, .16, "sine", .2), 85);
+  if(c >= 2){ setTimeout(()=>beep(b*2, .2, "triangle", .16), 170); }
+  if(c >= 4){ setTimeout(()=>beep(b*2.5, .24, "triangle", .14), 255); }
+}
+function sfxNo(){ beep(240,.2,"square",.16,140); }
+function sfxClear(){ [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,.22,"triangle",.2),i*110)); }
+/* 폭죽 터지는 '펑' */
+function sfxBoom(){
+  if(!sound) return;
+  const a = ac(); if(!a) return;
+  try{
+    const t = a.currentTime, len = 0.35, buf = a.createBuffer(1, a.sampleRate*len, a.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<d.length;i++){ d[i] = (Math.random()*2-1) * Math.pow(1 - i/d.length, 3); }
+    const src = a.createBufferSource(); src.buffer = buf;
+    const f = a.createBiquadFilter(); f.type = "lowpass"; f.frequency.setValueAtTime(1800, t);
+    f.frequency.exponentialRampToValueAtTime(200, t + len);
+    const g = a.createGain(); g.gain.setValueAtTime(.35, t);
+    g.gain.exponentialRampToValueAtTime(.001, t + len);
+    src.connect(f); f.connect(g); g.connect(a.destination);
+    src.start(t);
+  }catch(e){}
+}
 
 /* 영어 발음 (브라우저 TTS) */
 let enVoice = null;
@@ -286,17 +359,115 @@ function speak(word, rate){
   }catch(e){}
 }
 function warmup(){ // 모바일: 첫 사용자 터치에서 오디오 깨우기
+  ac();
   try{
-    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
-    if(actx.state === "suspended") actx.resume();
     if('speechSynthesis' in window){
       const u = new SpeechSynthesisUtterance(" ");
       u.volume = 0; speechSynthesis.speak(u);
     }
   }catch(e){}
 }
-document.addEventListener("touchstart", warmup, {once:true});
-document.addEventListener("click", warmup, {once:true});
+/* capture 단계로 등록 → 카드 클릭 핸들러보다 먼저 실행돼서 첫 소리부터 들림 */
+document.addEventListener("touchstart", warmup, {once:true, capture:true});
+document.addEventListener("mousedown", warmup, {once:true, capture:true});
+document.addEventListener("click", warmup, {once:true, capture:true});
+
+/* ================= 불꽃 이펙트 ================= */
+const fxc = document.getElementById("fx");
+const fctx = fxc.getContext("2d");
+let parts = [], raf = null;
+
+function sizeFx(){
+  const r = window.devicePixelRatio || 1;
+  fxc.width = innerWidth * r; fxc.height = innerHeight * r;
+  fxc.style.width = innerWidth + "px"; fxc.style.height = innerHeight + "px";
+  fctx.setTransform(r, 0, 0, r, 0, 0);
+}
+sizeFx();
+window.addEventListener("resize", sizeFx);
+
+const PAL = [
+  ["#ffc800","#ff8f00","#fff3c0","#ffe27a"],                      // lv0 기본 금색
+  ["#58cc02","#1cb0f6","#ffc800","#ffffff","#a560ff"],            // lv1 알록달록
+  ["#ff4b4b","#ffc800","#1cb0f6","#a560ff","#58cc02","#ffffff"]   // lv2 풀컬러
+];
+
+function star(x, y, r){
+  fctx.beginPath();
+  for(let i=0;i<10;i++){
+    const rad = (i % 2 === 0) ? r : r * .45;
+    const a = Math.PI * i / 5 - Math.PI/2;
+    const px = x + Math.cos(a)*rad, py = y + Math.sin(a)*rad;
+    i === 0 ? fctx.moveTo(px,py) : fctx.lineTo(px,py);
+  }
+  fctx.closePath(); fctx.fill();
+}
+
+function burst(x, y, level){
+  const lv = Math.min(level, 2);
+  const n   = [26, 46, 78][lv];
+  const spd = [5, 7, 10][lv];
+  const pal = PAL[lv];
+  for(let i=0;i<n;i++){
+    const a = Math.random() * Math.PI * 2;
+    const v = spd * (.35 + Math.random() * .9);
+    parts.push({
+      x, y,
+      vx: Math.cos(a) * v,
+      vy: Math.sin(a) * v - 1.6,
+      life: 1, decay: .011 + Math.random() * .015,
+      size: 2 + Math.random() * (2.5 + lv * 1.8),
+      c: pal[(Math.random() * pal.length) | 0],
+      st: lv >= 1 && Math.random() < .38,
+      spin: Math.random() * 6
+    });
+  }
+  if(!raf) raf = requestAnimationFrame(tickFx);
+}
+
+/* 3콤보 이상: 화면 위쪽에서 폭죽 여러 발 */
+function fireworks(level){
+  const shots = Math.min(2 + level, 6);
+  for(let i=0;i<shots;i++){
+    setTimeout(()=>{
+      burst(innerWidth * (.12 + Math.random() * .76), innerHeight * (.12 + Math.random() * .35), 2);
+      sfxBoom();
+    }, i * 190);
+  }
+}
+
+function tickFx(){
+  fctx.clearRect(0, 0, innerWidth, innerHeight);
+  for(let i = parts.length - 1; i >= 0; i--){
+    const p = parts[i];
+    p.x += p.vx; p.y += p.vy;
+    p.vy += .2; p.vx *= .985; p.vy *= .985;
+    p.life -= p.decay; p.spin += .2;
+    if(p.life <= 0){ parts.splice(i, 1); continue; }
+    fctx.globalAlpha = Math.max(p.life, 0);
+    fctx.fillStyle = p.c;
+    if(p.st){ star(p.x, p.y, p.size * 1.7); }
+    else { fctx.beginPath(); fctx.arc(p.x, p.y, p.size, 0, 6.3); fctx.fill(); }
+  }
+  fctx.globalAlpha = 1;
+  if(parts.length){ raf = requestAnimationFrame(tickFx); }
+  else { raf = null; fctx.clearRect(0, 0, innerWidth, innerHeight); }
+}
+
+/* 콤보 배너 */
+const COMBO_TXT = [
+  "좋아! 👍", "잘한다! ✨", "연속 정답! 🔥", "폭발한다! 💥",
+  "천재냐 진짜 🤯", "멈추지 마! 🚀", "이음이 최고! 👑"
+];
+function showCombo(c){
+  const el = document.getElementById("combo");
+  const lv = c >= 5 ? 3 : (c >= 3 ? 2 : 1);
+  el.className = "";
+  void el.offsetWidth;                                  // 애니메이션 리셋
+  el.querySelector(".n").textContent = c + " COMBO";
+  el.querySelector(".t").textContent = COMBO_TXT[Math.min(c - 2, COMBO_TXT.length - 1)];
+  el.className = "on lv" + lv;
+}
 
 function toggleSound(){
   sound = !sound;
@@ -338,12 +509,17 @@ function show(id){
 }
 function goHome(){
   if('speechSynthesis' in window) speechSynthesis.cancel();
+  parts = []; fctx.clearRect(0, 0, innerWidth, innerHeight);
+  document.getElementById("combo").className = "";
   renderHome();
 }
 
 /* ================= 게임 ================= */
 function startStage(i){
   cur = i; tries = 0; matched = 0; opened = []; lock = false;
+  combo = 0; bestCombo = 0;
+  parts = []; fctx.clearRect(0, 0, innerWidth, innerHeight);
+  document.getElementById("combo").className = "";
   const s = STAGES[i];
   deck = [];
   s.words.forEach((w,idx)=>{
@@ -387,12 +563,17 @@ function shuffle(a){
   for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
 }
 
+function centerOf(el){
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+
 function flip(idx, el){
   if(lock) return;
   if(el.classList.contains("open") || el.classList.contains("matched")) return;
   el.classList.add("open");
   opened.push({idx, el, card:deck[idx]});
-  beep(520,.06);
+  sfxFlip(opened.length === 2);          // ← 뒤집을 때마다 소리
 
   if(opened.length === 2){
     tries++;
@@ -404,16 +585,28 @@ function flip(idx, el){
         a.el.classList.remove("open"); b.el.classList.remove("open");
         a.el.classList.add("matched"); b.el.classList.add("matched");
         matched++;
-        sfxOK();
-        speak(a.card.en);              // ← 맞히면 발음!
-        showSay(a.card.en, a.card.type==="en" ? b.card.txt : a.card.txt);
+        combo++;
+        if(combo > bestCombo) bestCombo = combo;
+
+        const lv = combo >= 5 ? 2 : (combo >= 3 ? 1 : 0);
+        const p1 = centerOf(a.el), p2 = centerOf(b.el);
+        burst(p1.x, p1.y, lv);                                  // ← 두 카드에서 불꽃
+        burst(p2.x, p2.y, lv);
+        burst((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, lv);        // 가운데서 한 번 더
+        sfxOK(combo - 1);
+        if(combo >= 2) showCombo(combo);                        // 연속이면 칭찬 배너
+        if(combo >= 3) fireworks(lv);                           // 3연속부터 폭죽
+
+        speak(a.card.en);                                       // ← 맞히면 발음!
+        showSay(a.card.en, a.card.type === "en" ? b.card.txt : a.card.txt);
         const total = STAGES[cur].words.length;
         document.getElementById("barFill").style.width = (matched/total*100)+"%";
         opened = []; lock = false;
-        if(matched === total) setTimeout(finish, 1100);
+        if(matched === total) setTimeout(finish, combo >= 3 ? 1500 : 1100);
       }, 380);
     }else{
       lock = true;
+      combo = 0;                                                // 틀리면 콤보 끊김
       a.el.classList.add("wrong"); b.el.classList.add("wrong");
       sfxNo();
       setTimeout(()=>{
@@ -442,11 +635,14 @@ function finish(){
   else if(!(cur in save.stars)){ save.stars[cur] = stars; persist(); }
 
   sfxClear();
+  fireworks(2);                                   // 클리어 축하 폭죽
+  setTimeout(()=>fireworks(2), 700);
   document.getElementById("rTitle").textContent = (cur+1)+"단계 클리어!";
   document.getElementById("rStars").textContent = "⭐".repeat(stars) + "☆".repeat(3-stars);
   const pool = stars === 3 ? CHEER_GOOD : CHEER_OK;
   document.getElementById("rMsg").textContent =
-    "뒤집기 " + tries + "번 · " + pool[Math.floor(Math.random()*pool.length)];
+    "뒤집기 " + tries + "번 · 최고 " + bestCombo + "연속 🔥\n" +
+    pool[Math.floor(Math.random()*pool.length)];
 
   const wl = document.getElementById("rWords");
   wl.innerHTML = "";
