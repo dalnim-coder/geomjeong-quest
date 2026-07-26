@@ -20,10 +20,10 @@
   body{
     font-family:'Segoe UI','Malgun Gothic',system-ui,sans-serif;
     background:#fff; color:var(--ink);
-    display:flex; justify-content:center; min-height:100vh;
+    display:flex; justify-content:center; min-height:100vh; min-height:100dvh;
     -webkit-user-select:none; user-select:none;
   }
-  #app{width:100%; max-width:480px; display:flex; flex-direction:column; min-height:100vh; padding:16px;}
+  #app{width:100%; max-width:480px; display:flex; flex-direction:column; min-height:100vh; min-height:100dvh; padding:16px;}
 
   /* 테마: 과목별 강조색 */
   body.soc{--accent:var(--purple); --accent-d:var(--purple-d); --accent-l:var(--purple-l);}
@@ -162,19 +162,22 @@
   #examCount .flagbtn{color:var(--orange-d); cursor:pointer; font-weight:800;}
   #examCount .flagbtn.on{color:#fff; background:var(--orange); border-radius:8px; padding:1px 8px;}
 
-  #examBody{flex:1; overflow-y:auto;}
-  #examNav{display:flex; gap:8px; margin-top:10px;}
+  /* 문제 영역만 스크롤 — 상단 시계와 하단 버튼은 항상 보이게 */
+  #examBody{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; min-height:0; padding-bottom:4px;}
+  #examTop{position:sticky; top:0; z-index:5;}
+  #exam .opt{min-height:52px;}                 /* 손가락으로 누르기 좋은 크기 */
+  #examNav{display:flex; gap:8px; margin-top:10px; padding-bottom:env(safe-area-inset-bottom);}
   #examNav .btn{font-size:16px; padding:13px;}
   #examNav .btn:disabled{background:var(--gray); color:var(--gray-d); box-shadow:0 4px 0 #d0d0d0;}
   .omr-toggle{
     width:100%; margin-top:8px; background:none; border:none; color:var(--gray-d);
     font-size:12.5px; font-weight:800; text-decoration:underline; cursor:pointer; padding:6px;
   }
-  #omr{display:none; grid-template-columns:repeat(9,1fr); gap:5px; margin-top:8px;}
+  #omr{display:none; grid-template-columns:repeat(7,1fr); gap:6px; margin-top:8px;}
   #omr.on{display:grid;}
   #omr button{
-    aspect-ratio:1; border:2px solid var(--gray); background:#fff; border-radius:8px;
-    font-size:12px; font-weight:800; cursor:pointer; color:var(--gray-d); padding:0;
+    aspect-ratio:1; min-height:40px; border:2px solid var(--gray); background:#fff; border-radius:9px;
+    font-size:14px; font-weight:800; cursor:pointer; color:var(--gray-d); padding:0;
   }
   #omr button.done{background:var(--blue); border-color:var(--blue); color:#fff;}
   #omr button.flag{border-color:var(--orange); background:#fff3e0; color:var(--orange-d);}
@@ -789,6 +792,7 @@ function startGame(subject){
 }
 function goHome(){
   clearInterval(exTimer);
+  releaseAwake();
   document.body.className='';
   screen('start');
   loadHome();
@@ -988,7 +992,7 @@ function makeSheet(k){
 
 function examStart(one){
   const list = one ? EXAM_ORDER.filter(x=>x.k===one) : EXAM_ORDER.slice();
-  ex = { one:!!one, si:0, qi:0, remain:EXAM_SEC, sheets:list.map(s=>makeSheet(s.k)) };
+  ex = { one:!!one, si:0, qi:0, remain:EXAM_SEC, deadline:null, sheets:list.map(s=>makeSheet(s.k)) };
   examSave();
   examOpen();
 }
@@ -1002,22 +1006,44 @@ function examOpen(){
   examRunClock();
 }
 
+/* 타이머는 '남은 초 빼기'가 아니라 '끝나는 시각' 기준.
+   폰 화면이 꺼지거나 앱을 나갔다 와도 시간이 정확하게 흘러간다. */
 function examRunClock(){
   clearInterval(exTimer);
+  if(!ex.deadline) ex.deadline = Date.now() + ex.remain*1000;
   examClock();
-  exTimer = setInterval(()=>{
-    ex.remain--;
-    examClock();
-    if(ex.remain % 10 === 0) examSave();
-    if(ex.remain <= 0){ clearInterval(exTimer); examSubmit(true); }
-  }, 1000);
+  exTimer = setInterval(examClock, 500);
+  keepAwake();
 }
 function examClock(){
+  if(!ex || !ex.deadline) return;
+  ex.remain = Math.round((ex.deadline - Date.now())/1000);
   const r = Math.max(ex.remain, 0);
   const el = $('exClock');
   el.textContent = Math.floor(r/60) + ':' + String(r%60).padStart(2,'0');
   el.className = 'clock' + (r<=60 ? ' danger' : (r<=300 ? ' warn' : ''));
+  if(r % 10 === 0) examSave();
+  if(ex.remain <= 0){ clearInterval(exTimer); examSubmit(true); }
 }
+
+/* 시험 중엔 화면이 안 꺼지게 (지원하는 폰만) */
+let wakeLock = null;
+async function keepAwake(){
+  try{
+    if('wakeLock' in navigator && !wakeLock){
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', ()=>{ wakeLock = null; });
+    }
+  }catch(e){}
+}
+function releaseAwake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){} }
+
+/* 앱을 나갔다 돌아오면 시계 즉시 보정 + 화면 잠금 해제 복구 */
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible' && ex && ex.deadline && $('exam').style.display === 'flex'){
+    examClock(); keepAwake();
+  }
+});
 
 function examRender(){
   const sheet = ex.sheets[ex.si], q = sheet.qs[ex.qi];
@@ -1087,9 +1113,11 @@ function examTrySubmit(){
 
 function examSubmit(auto){
   clearInterval(exTimer);
+  releaseAwake();
   const sheet = ex.sheets[ex.si];
   sheet.submitted = true;
-  sheet.used = EXAM_SEC - Math.max(ex.remain, 0);
+  sheet.used = Math.min(EXAM_SEC - Math.max(ex.remain, 0), EXAM_SEC);
+  ex.deadline = null;
   examSave();
   if(ex.si < ex.sheets.length - 1) examBreak(auto);
   else examReport();
@@ -1113,13 +1141,15 @@ function examBreak(auto){
     '<span style="font-size:12.5px">점수는 전 과목 끝나면 한꺼번에 나와</span>';
 }
 function examNextSubject(){
-  ex.si++; ex.qi = 0; ex.remain = EXAM_SEC;
+  ex.si++; ex.qi = 0; ex.remain = EXAM_SEC; ex.deadline = null;
   examSave(); examOpen();
 }
 function examPause(){
   clearInterval(exTimer);
-  examSave();
-  goHome();
+  // 멈춰 있는 동안엔 시험 시간이 흐르지 않게 남은 시간만 저장
+  if(ex.deadline) ex.remain = Math.max(Math.round((ex.deadline - Date.now())/1000), 30);
+  ex.deadline = null;
+  examSave(); releaseAwake(); goHome();
 }
 function examResume(){
   let s = null;
@@ -1127,6 +1157,7 @@ function examResume(){
   if(!s || !s.sheets){ alert('이어서 볼 시험이 없어.'); return; }
   ex = s;
   if(ex.sheets[ex.si].submitted){ examBreak(false); return; }   // 쉬는 시간에 멈췄던 경우
+  ex.deadline = null;                                            // 멈춘 시점의 남은 시간부터 다시
   if(ex.remain <= 5) ex.remain = 5*60;                          // 시간이 거의 끝났으면 5분만 더
   examOpen();
 }
@@ -1134,6 +1165,7 @@ function examSave(){ try{ localStorage.setItem(EXAM_KEY, JSON.stringify(ex)); }c
 
 function examReport(){
   clearInterval(exTimer);
+  releaseAwake();
   try{ localStorage.removeItem(EXAM_KEY); }catch(e){}
   document.body.className = '';
   screen('examReport');
@@ -1204,6 +1236,13 @@ function examReport(){
     });
   }
 }
+
+/* 시험 중 실수로 창을 닫거나 뒤로 가면 경고 (답안은 이미 저장돼 있어 이어보기 가능) */
+window.addEventListener('beforeunload', e=>{
+  if(ex && ex.deadline && $('exam').style.display === 'flex'){
+    e.preventDefault(); e.returnValue = '';
+  }
+});
 
 $('quit').onclick=goHome;
 loadHome();
