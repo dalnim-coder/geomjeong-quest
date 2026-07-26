@@ -124,6 +124,95 @@
   @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
   .shake{animation:shake .4s;}
   @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+  /* ═══════════ 실전 모의고사 ═══════════ */
+  #examIntro,#exam,#examBreak,#examReport{display:none; flex-direction:column; flex:1; width:100%;}
+  #examIntro{align-items:center; text-align:center; gap:14px; padding-top:10px; overflow-y:auto;}
+  #examIntro h2{font-size:23px; color:var(--ink);}
+  #examIntro .lead{font-size:13.5px; color:var(--gray-d); line-height:1.6;}
+  .exam-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .exam-table th,.exam-table td{border:1px solid var(--gray); padding:7px 6px; text-align:center;}
+  .exam-table th{background:#f4f4f4; font-weight:800; color:var(--gray-d);}
+  .exam-table td.sj{font-weight:800;}
+  .exam-table tr.skip td{color:var(--gray-d); background:#fafafa; text-decoration:line-through;}
+  .exam-rule{width:100%; background:#f7fbff; border:2px solid #d7ecff; border-radius:14px;
+    padding:12px 14px; text-align:left; font-size:13px; line-height:1.75; color:var(--ink);}
+  .exam-rule b{color:var(--blue-d);}
+  .exam-one{width:100%; display:flex; flex-wrap:wrap; gap:7px; justify-content:center;}
+  .exam-one button{
+    flex:0 0 auto; border:2px solid var(--gray); background:#fff; border-radius:12px;
+    padding:8px 13px; font-size:13px; font-weight:800; cursor:pointer; color:var(--ink);
+  }
+  .exam-one button:active{background:var(--gray);}
+
+  /* 시험지 상단 */
+  #examTop{
+    display:flex; align-items:center; gap:8px; padding:9px 11px; margin-bottom:10px;
+    background:var(--ink); color:#fff; border-radius:14px;
+  }
+  #examTop .pd{font-size:13px; font-weight:900;}
+  #examTop .sj{flex:1; font-size:15px; font-weight:900;}
+  #examTop .clock{
+    font-size:17px; font-weight:900; font-variant-numeric:tabular-nums;
+    background:#fff; color:var(--ink); border-radius:9px; padding:3px 9px;
+  }
+  #examTop .clock.warn{background:var(--gold); color:#7a5b00;}
+  #examTop .clock.danger{background:var(--red); color:#fff; animation:blink 1s infinite;}
+  @keyframes blink{50%{opacity:.55}}
+  #examCount{font-size:12.5px; font-weight:800; color:var(--gray-d); margin-bottom:6px; display:flex; justify-content:space-between;}
+  #examCount .flagbtn{color:var(--orange-d); cursor:pointer; font-weight:800;}
+  #examCount .flagbtn.on{color:#fff; background:var(--orange); border-radius:8px; padding:1px 8px;}
+
+  #examBody{flex:1; overflow-y:auto;}
+  #examNav{display:flex; gap:8px; margin-top:10px;}
+  #examNav .btn{font-size:16px; padding:13px;}
+  #examNav .btn:disabled{background:var(--gray); color:var(--gray-d); box-shadow:0 4px 0 #d0d0d0;}
+  .omr-toggle{
+    width:100%; margin-top:8px; background:none; border:none; color:var(--gray-d);
+    font-size:12.5px; font-weight:800; text-decoration:underline; cursor:pointer; padding:6px;
+  }
+  #omr{display:none; grid-template-columns:repeat(9,1fr); gap:5px; margin-top:8px;}
+  #omr.on{display:grid;}
+  #omr button{
+    aspect-ratio:1; border:2px solid var(--gray); background:#fff; border-radius:8px;
+    font-size:12px; font-weight:800; cursor:pointer; color:var(--gray-d); padding:0;
+  }
+  #omr button.done{background:var(--blue); border-color:var(--blue); color:#fff;}
+  #omr button.flag{border-color:var(--orange); background:#fff3e0; color:var(--orange-d);}
+  #omr button.cur{outline:3px solid var(--ink); outline-offset:1px;}
+
+  /* 쉬는 시간 */
+  #examBreak{align-items:center; justify-content:center; text-align:center; gap:15px;}
+  #examBreak .emo{font-size:66px;}
+  #examBreak h2{font-size:22px;}
+  #examBreak .nx{font-size:14px; color:var(--gray-d); line-height:1.6;}
+  #examBreak .done-chip{background:var(--green-l); color:var(--green-d); font-weight:800;
+    border-radius:14px; padding:9px 15px; font-size:14px;}
+
+  /* 성적표 */
+  #examReport{align-items:center; text-align:center; gap:12px; overflow-y:auto; padding-top:8px;}
+  #examReport .emo{font-size:60px;}
+  #examReport h2{font-size:24px;}
+  .verdict{border-radius:16px; padding:12px 16px; font-weight:900; font-size:17px; width:100%;}
+  .verdict.pass{background:var(--green-l); color:var(--green-d);}
+  .verdict.fail{background:var(--red-l); color:var(--red);}
+  .verdict .sub2{display:block; font-size:13px; font-weight:700; margin-top:4px;}
+  .rep-row{width:100%; display:flex; align-items:center; gap:9px; font-size:13.5px;}
+  .rep-row .nm{width:38px; font-weight:800; text-align:left; flex:0 0 38px;}
+  .rep-row .track{flex:1; height:19px; background:var(--gray); border-radius:10px; overflow:hidden;}
+  .rep-row .fill{height:100%; border-radius:10px; background:var(--green); transition:width .6s;}
+  .rep-row .fill.mid{background:var(--gold);} .rep-row .fill.low{background:var(--red);}
+  .rep-row .sc{width:56px; text-align:right; font-weight:900; flex:0 0 56px; font-variant-numeric:tabular-nums;}
+  .avg-box{width:100%; display:flex; gap:9px;}
+  .avg-box .cell{flex:1; background:#f7f7f7; border-radius:14px; padding:10px 6px;}
+  .avg-box .cell .l{font-size:11px; color:var(--gray-d); font-weight:800;}
+  .avg-box .cell .v{font-size:21px; font-weight:900; margin-top:2px;}
+  .wrong-block{width:100%; text-align:left; border:2px solid var(--gray); border-radius:14px; padding:11px 13px; font-size:13px;}
+  .wrong-block h4{font-size:14px; margin-bottom:7px; color:var(--ink);}
+  .wrong-block .wq{margin-bottom:9px; line-height:1.55; padding-bottom:9px; border-bottom:1px dashed var(--gray);}
+  .wrong-block .wq:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+  .wrong-block .mine{color:var(--red); font-weight:800;}
+  .wrong-block .ans{color:var(--green-d); font-weight:800;}
+  .wrong-block .exp{color:var(--gray-d); font-size:12.5px; margin-top:2px;}
 </style>
 </head>
 <body>
@@ -146,7 +235,17 @@
       <div class="chip streak">🔥 <span id="streak">0</span>일 연속</div>
     </div>
     <div class="cheer-line" id="home-cheer"></div>
+    <div id="browserWarn" style="display:none; flex-direction:column; gap:9px; width:100%; max-width:320px;
+         background:#fff0d9; border:2px solid var(--orange); border-radius:16px; padding:12px 14px; text-align:left;">
+      <div style="font-weight:900; font-size:15px; color:var(--orange-d)">🔇 이 브라우저는 발음이 안 나와</div>
+      <div style="font-size:12.5px; line-height:1.5">삼성 인터넷은 영어 읽어주기 기능이 없어.<br><b>크롬</b>으로 열면 발음이 나와!</div>
+      <a id="openChrome" href="#" style="display:block; text-align:center; text-decoration:none; background:var(--orange);
+         color:#fff; font-weight:900; font-size:15px; padding:11px; border-radius:14px; box-shadow:0 3px 0 rgba(0,0,0,.15)">크롬으로 열기 →</a>
+    </div>
     <div class="pick">
+      <button class="subj-btn" style="border-color:var(--ink); box-shadow:0 4px 0 var(--ink); background:var(--ink); color:#fff" onclick="examIntro()">
+        <span class="ico">🎓</span><span>실전 모의고사<span class="sm" style="color:#d9d9d9">5교시 · 25문항 · 40분 · 성적표</span></span>
+      </button>
       <button class="subj-btn subj-en" onclick="startGame('en')">
         <span class="ico">🔤</span><span>영어<span class="sm">어휘 · 문법 · 회화 · 독해</span></span>
       </button>
@@ -189,6 +288,92 @@
     <div id="r-review" style="width:100%; text-align:left; font-size:14px; color:var(--gray-d);"></div>
     <button class="btn btn-green" style="max-width:280px" id="again" onclick="startGame(curSubject)">한 판 더! 🔁</button>
     <button class="btn btn-gray" style="max-width:280px" onclick="goHome()">과목 다시 고르기</button>
+  </div>
+
+  <!-- ═══ 실전 모의고사: 안내 ═══ -->
+  <div id="examIntro">
+    <div style="font-size:52px">🎓</div>
+    <h2>실전 모의고사</h2>
+    <div class="lead">진짜 시험처럼 봐 보자.<br>정답은 <b>다 끝난 뒤에</b> 한꺼번에 알려줘.</div>
+    <table class="exam-table">
+      <tr><th>교시</th><th>과목</th><th>시간</th><th>문항</th></tr>
+      <tr><td>1</td><td class="sj">국어</td><td>09:00~09:40</td><td>25</td></tr>
+      <tr class="skip"><td>2</td><td class="sj">수학</td><td>10:00~10:40</td><td>면제</td></tr>
+      <tr><td>3</td><td class="sj">영어</td><td>11:00~11:40</td><td>25</td></tr>
+      <tr><td>4</td><td class="sj">사회</td><td>12:40~13:20</td><td>25</td></tr>
+      <tr><td>5</td><td class="sj">과학</td><td>13:40~14:20</td><td>25</td></tr>
+      <tr><td>6</td><td class="sj">도덕<span style="font-size:11px;color:#afafaf"><br>(선택)</span></td><td>14:40~15:20</td><td>25</td></tr>
+    </table>
+    <div class="exam-rule">
+      • 한 과목 <b>25문항 · 40분</b>, 문항당 <b>4점</b> (100점 만점)<br>
+      • 합격은 전 과목 <b>평균 60점</b> 이상<br>
+      • 이음이 목표는 <b>평균 96점</b> — 애니고 내신 환산 때문 🎨<br>
+      • 시험 중엔 정답을 안 알려줘. <b>다시 풀기·건너뛰기</b> 가능<br>
+      • 시간이 다 되면 <b>자동 제출</b>돼<br>
+      • 수학은 1회차 100점이라 <b>면제</b>
+    </div>
+    <button class="btn btn-green" style="max-width:320px" onclick="examStart(false)">전과목 모의고사 시작 (5교시)</button>
+    <button class="btn btn-gray" style="max-width:320px" id="examResume" onclick="examResume()">이어서 보기</button>
+    <div style="font-size:12.5px;color:#afafaf;font-weight:800;margin-top:2px">한 과목만 실전으로 보기</div>
+    <div class="exam-one">
+      <button onclick="examStart('kor')">국어</button>
+      <button onclick="examStart('en')">영어</button>
+      <button onclick="examStart('soc')">사회</button>
+      <button onclick="examStart('sci')">과학</button>
+      <button onclick="examStart('eth')">도덕</button>
+    </div>
+    <button class="btn btn-gray" style="max-width:320px" onclick="goHome()">← 돌아가기</button>
+  </div>
+
+  <!-- ═══ 실전 모의고사: 시험지 ═══ -->
+  <div id="exam">
+    <div id="examTop">
+      <span class="pd" id="exPd">1교시</span>
+      <span class="sj" id="exSj">국어</span>
+      <span class="clock" id="exClock">40:00</span>
+    </div>
+    <div id="examCount">
+      <span id="exNo">1 / 25</span>
+      <span class="flagbtn" id="exFlag" onclick="examFlag()">🔖 나중에 다시</span>
+    </div>
+    <div id="examBody">
+      <div class="qtype" id="exType"></div>
+      <div class="qtext" id="exQ"></div>
+      <div id="exExtra"></div>
+      <div id="exOpts"></div>
+    </div>
+    <button class="omr-toggle" onclick="examOmr()">답안지 번호판 보기 ▾</button>
+    <div id="omr"></div>
+    <div id="examNav">
+      <button class="btn btn-gray" id="exPrev" onclick="examGo(-1)">← 이전</button>
+      <button class="btn btn-green" id="exNext" onclick="examGo(1)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- ═══ 실전 모의고사: 쉬는 시간 ═══ -->
+  <div id="examBreak">
+    <div class="emo" id="brEmo">☕</div>
+    <h2 id="brTitle">1교시 종료</h2>
+    <div class="done-chip" id="brDone">답안 제출 완료</div>
+    <div class="nx" id="brNext"></div>
+    <button class="btn btn-green" style="max-width:300px" id="brGo" onclick="examNextSubject()">다음 교시 시작 →</button>
+    <button class="btn btn-gray" style="max-width:300px" onclick="examPause()">여기서 멈추고 나중에</button>
+  </div>
+
+  <!-- ═══ 실전 모의고사: 성적표 ═══ -->
+  <div id="examReport">
+    <div class="emo" id="repEmo">📋</div>
+    <h2>성적표</h2>
+    <div class="verdict" id="repVerdict"></div>
+    <div class="avg-box">
+      <div class="cell"><div class="l">평균</div><div class="v" id="repAvg">0</div></div>
+      <div class="cell"><div class="l">총점</div><div class="v" id="repSum">0</div></div>
+      <div class="cell"><div class="l">맞은 문항</div><div class="v" id="repCnt">0</div></div>
+    </div>
+    <div id="repBars" style="width:100%; display:flex; flex-direction:column; gap:8px;"></div>
+    <div id="repWrong" style="width:100%; display:flex; flex-direction:column; gap:9px;"></div>
+    <button class="btn btn-green" style="max-width:300px" onclick="examIntro()">다시 도전 🔁</button>
+    <button class="btn btn-gray" style="max-width:300px" onclick="goHome()">홈으로</button>
   </div>
 
   <!-- 피드백 -->
@@ -246,6 +431,36 @@ const BANK_EN = [
   /* --- 실용영어(표지) --- */
   {t:"실용", q:"'No Parking' 표지판의 뜻은?", sp:"No Parking", o:["주차 금지","출입 금지","낚시 금지","촬영 금지"], a:"주차 금지"},
   {t:"실용", q:"문에 붙은 'PUSH'의 뜻은?", sp:"push", o:["미시오","당기시오","잠김","고장"], a:"미시오", ex:"push=미시오, pull=당기시오."},
+
+  /* --- 추가 어휘 --- */
+  {t:"어휘", q:"'usually'의 뜻은?", sp:"usually", o:["보통, 대개","전혀","한 번도","갑자기"], a:"보통, 대개"},
+  {t:"어휘", q:"'invent'의 뜻은?", sp:"invent", o:["발명하다","초대하다","방문하다","막다"], a:"발명하다"},
+  {t:"어휘", q:"'protect'의 뜻은?", sp:"protect", o:["보호하다","버리다","팔다","잊다"], a:"보호하다"},
+  {t:"어휘", q:"'increase'의 반대말은?", sp:"increase", o:["decrease","begin","carry","invite"], a:"decrease", ex:"increase(늘다) ↔ decrease(줄다)."},
+  {t:"어휘", q:"'arrive'의 반대말은?", sp:"arrive", o:["leave","enter","stay","meet"], a:"leave", ex:"arrive(도착하다) ↔ leave(떠나다)."},
+  {t:"어휘", q:"'quickly'와 뜻이 비슷한 말은?", sp:"quickly", o:["fast","slowly","late","early"], a:"fast", ex:"quickly = fast (빠르게)."},
+
+  /* --- 추가 문법 --- */
+  {t:"문법", q:"I ___ to school by bus every day.", o:["go","goes","going","went"], a:"go", ex:"I + 반복되는 일 → 동사원형 go."},
+  {t:"문법", q:"She didn't ___ TV last night.", o:["watch","watches","watched","watching"], a:"watch", ex:"didn't 뒤에는 항상 동사원형."},
+  {t:"문법", q:"I want ___ a webtoon artist.", o:["to be","be","being","was"], a:"to be", ex:"want + to부정사 → want to be."},
+  {t:"문법", q:"He is the ___ boy in his class.", o:["tallest","tall","taller","more tall"], a:"tallest", ex:"in his class(범위) → 최상급 tallest."},
+  {t:"문법", q:"Do you know the boy ___ is singing?", o:["who","which","what","whose"], a:"who", ex:"사람을 꾸며 주는 관계대명사 → who."},
+  {t:"문법", q:"The cake ___ by my mom.", o:["was made","made","makes","is making"], a:"was made", ex:"케이크가 '만들어진' 것 → 수동태 was made."},
+  {t:"문법", q:"It is too cold ___ swim.", o:["to","for","of","at"], a:"to", ex:"too ~ to ... (너무 ~해서 …할 수 없다)."},
+
+  /* --- 추가 회화 --- */
+  {t:"회화", q:"A: How can I get to the station?  B: ___", o:["Go straight and turn left.","It's 3,000 won.","I'm 15 years old.","Yes, I can."], a:"Go straight and turn left.", ex:"길을 묻는 말 → 길 안내로 대답."},
+  {t:"회화", q:"A: Can I borrow your pen?  B: ___", o:["Sure, here you are.","I'm sorry to hear that.","It's sunny today.","Nice to meet you."], a:"Sure, here you are.", ex:"빌려 달라는 부탁을 들어주는 대답."},
+  {t:"회화", q:"A: Why don't we go hiking this Saturday?  B: ___", o:["That sounds great.","You're welcome.","It's mine.","I have two."], a:"That sounds great.", ex:"Why don't we ~?(제안)에 찬성하는 대답."},
+
+  /* --- 추가 독해 --- */
+  {t:"독해", q:"글쓴이가 주말에 한 일은?", p:"Last Saturday, I went to the zoo with my family. We saw elephants and monkeys. It was really fun.", o:["동물원에 갔다","영화를 봤다","도서관에서 공부했다","자전거를 탔다"], a:"동물원에 갔다", ex:"went to the zoo = 동물원에 갔다."},
+  {t:"독해", q:"이 글의 목적으로 알맞은 것은?", p:"Our school festival will be held on May 20th. Come and enjoy the concert, games, and food!", o:["행사에 오라고 알리려고","사과하려고","물건을 팔려고","길을 안내하려고"], a:"행사에 오라고 알리려고", ex:"축제 안내 + Come and enjoy → 초대·홍보."},
+
+  /* --- 추가 실용 --- */
+  {t:"실용", q:"건물에 붙은 'Emergency Exit'의 뜻은?", sp:"emergency exit", o:["비상구","출입 금지","안내소","화장실"], a:"비상구"},
+  {t:"실용", q:"기계에 붙은 'Out of Order'의 뜻은?", sp:"out of order", o:["고장 남","무료","주문 중","사용 가능"], a:"고장 남"},
 ];
 
 const BANK_SOC = [
@@ -285,6 +500,34 @@ const BANK_SOC = [
   {t:"문화", q:"한 사회 구성원이 공유하는 생활 양식 전체를 뜻하는 말은?", o:["문화","법","종교","경제"], a:"문화"},
   {t:"문화", q:"다른 문화를 그 사회 입장에서 이해하려는 태도는?", o:["문화 상대주의","자문화 중심주의","문화 사대주의","문화 제국주의"], a:"문화 상대주의", ex:"'그 나라 입장에서' 이해 = 문화 상대주의."},
   {t:"일반사회", q:"지역의 일을 그 주민이 스스로 처리하는 제도는?", o:["지방 자치","삼권 분립","중앙 집권","국민 투표"], a:"지방 자치"},
+
+  /* --- 추가 지리 --- */
+  {t:"지리", q:"지도에서 높이가 같은 곳을 이은 선은?", o:["등고선","경선","위선","축척"], a:"등고선", ex:"등고선이 촘촘하면 경사가 급하다."},
+  {t:"지리", q:"실제 거리를 지도에 줄인 비율을 뜻하는 말은?", o:["축척","방위","기호","등고선"], a:"축척"},
+  {t:"지리", q:"일정한 넓이에 사는 인구의 수를 나타내는 것은?", o:["인구 밀도","인구 이동","출산율","고령화"], a:"인구 밀도"},
+  {t:"지리", q:"지진과 화산 활동이 활발한, 태평양을 둘러싼 지역은?", o:["환태평양 조산대","사하라 사막","아마존 분지","알프스 산맥"], a:"환태평양 조산대", ex:"'불의 고리'라고도 불린다."},
+
+  /* --- 추가 일반사회 --- */
+  {t:"일반사회", q:"시장에서 가격이 정해지는 원리로 알맞은 것은?", o:["수요와 공급이 만나는 곳에서 정해진다","정부가 항상 정한다","생산자가 마음대로 정한다","소비자가 마음대로 정한다"], a:"수요와 공급이 만나는 곳에서 정해진다"},
+  {t:"일반사회", q:"물가가 계속 오르는 현상을 뜻하는 말은?", o:["인플레이션","디플레이션","실업","무역"], a:"인플레이션"},
+  {t:"일반사회", q:"태어나는 아이는 줄고 노인 인구는 늘어나는 현상은?", o:["저출산·고령화","도시화","산업화","세계화"], a:"저출산·고령화"},
+  {t:"일반사회", q:"세계 평화와 협력을 위해 만들어진 국제기구는?", o:["국제 연합(UN)","올림픽 위원회","적십자사","그린피스"], a:"국제 연합(UN)"},
+  {t:"일반사회", q:"법률이 헌법에 어긋나는지 판단하는 국가 기관은?", o:["헌법 재판소","국회","감사원","경찰청"], a:"헌법 재판소"},
+  {t:"일반사회", q:"한 사건에 대해 세 번까지 재판받을 수 있게 한 제도는?", o:["삼심 제도","삼권 분립","배심원제","국민 참여 재판"], a:"삼심 제도", ex:"잘못된 판결을 바로잡기 위한 제도."},
+
+  /* --- 추가 한국사 --- */
+  {t:"역사", q:"고구려의 영토를 크게 넓힌 왕은?", o:["광개토 대왕","근초고왕","진흥왕","세종"], a:"광개토 대왕"},
+  {t:"역사", q:"통일 신라 때 청해진을 세워 해상 무역을 이끈 인물은?", o:["장보고","김유신","최영","이순신"], a:"장보고"},
+  {t:"역사", q:"몽골의 침입을 이겨 내려는 마음으로 만든 고려의 문화유산은?", o:["팔만대장경","석굴암","첨성대","직지심체요절"], a:"팔만대장경"},
+  {t:"역사", q:"조선 후기 흥선 대원군이 외국과의 교류를 막은 정책은?", o:["통상 수교 거부 정책","개항 정책","북벌 정책","실학 운동"], a:"통상 수교 거부 정책", ex:"척화비를 세워 통상을 거부했다."},
+  {t:"역사", q:"1960년 부정 선거에 맞서 일어난 시민 혁명은?", o:["4·19 혁명","3·1 운동","6월 민주 항쟁","5·18 민주화 운동"], a:"4·19 혁명"},
+
+  /* --- 추가 세계사 --- */
+  {t:"세계사", q:"14~16세기 유럽에서 고대 그리스·로마 문화를 되살리려 한 문화 운동은?", o:["르네상스","종교 개혁","산업 혁명","계몽 운동"], a:"르네상스"},
+  {t:"세계사", q:"모든 사람은 평등하다고 밝힌 1776년 미국의 문서는?", o:["독립 선언서","권리 장전","인권 선언","마그나 카르타"], a:"독립 선언서"},
+
+  /* --- 추가 문화 --- */
+  {t:"문화", q:"다른 나라 문화만 우수하다고 여기고 우리 문화를 낮추어 보는 태도는?", o:["문화 사대주의","문화 상대주의","자문화 중심주의","문화 다양성"], a:"문화 사대주의"},
 ];
 
 const BANK_KOR = [
@@ -315,6 +558,47 @@ const BANK_KOR = [
 
   /* --- 독해 --- */
   {t:"독해", q:"다음 글의 중심 내용으로 알맞은 것은?", p:"규칙적인 운동은 몸을 건강하게 하고, 스트레스를 줄여 준다. 또 깊은 잠을 자는 데에도 도움이 된다.", o:["운동의 좋은 점","잠자는 방법","스트레스의 원인","건강한 음식"], a:"운동의 좋은 점"},
+
+  /* --- 추가 속담·한자성어 --- */
+  {t:"속담", q:"'등잔 밑이 어둡다'의 뜻은?", o:["가까이 있는 것을 오히려 잘 모른다","작은 것도 모이면 크다","서두르면 일을 그르친다","은혜를 잊지 말아야 한다"], a:"가까이 있는 것을 오히려 잘 모른다"},
+  {t:"속담", q:"'가는 말이 고와야 오는 말이 곱다'의 뜻은?", o:["내가 잘 대해야 남도 잘 대한다","말은 빨리 해야 한다","약속을 지켜야 한다","부지런해야 한다"], a:"내가 잘 대해야 남도 잘 대한다"},
+  {t:"속담", q:"'우물 안 개구리'가 뜻하는 사람은?", o:["넓은 세상을 모르는 사람","욕심이 많은 사람","말이 많은 사람","겁이 많은 사람"], a:"넓은 세상을 모르는 사람"},
+  {t:"한자성어", q:"'좋은 일과 나쁜 일은 번갈아 온다'는 뜻의 한자성어는?", o:["새옹지마","어부지리","청출어람","작심삼일"], a:"새옹지마", ex:"인생의 좋고 나쁨은 알 수 없다."},
+  {t:"한자성어", q:"'제자가 스승보다 더 나음'을 뜻하는 말은?", o:["청출어람","새옹지마","어부지리","동병상련"], a:"청출어람"},
+  {t:"한자성어", q:"'둘이 다투는 사이에 엉뚱한 사람이 이익을 봄'을 뜻하는 말은?", o:["어부지리","일석이조","유비무환","다다익선"], a:"어부지리"},
+
+  /* --- 추가 관용어·어휘 --- */
+  {t:"관용어", q:"'손이 크다'의 뜻은?", o:["씀씀이가 넉넉하다","힘이 세다","키가 크다","일을 잘한다"], a:"씀씀이가 넉넉하다"},
+  {t:"관용어", q:"'귀가 얇다'의 뜻은?", o:["남의 말을 쉽게 믿는다","잘 듣지 못한다","소문을 잘 낸다","비밀을 잘 지킨다"], a:"남의 말을 쉽게 믿는다"},
+  {t:"어휘", q:"'인색하다'의 뜻으로 알맞은 것은?", o:["재물을 지나치게 아끼다","마음이 넓다","성격이 밝다","말이 많다"], a:"재물을 지나치게 아끼다"},
+  {t:"어휘", q:"'무모하다'의 뜻으로 알맞은 것은?", o:["앞뒤를 헤아리지 않고 무리하다","지혜롭고 신중하다","부지런하다","친절하다"], a:"앞뒤를 헤아리지 않고 무리하다"},
+
+  /* --- 추가 문법 --- */
+  {t:"품사", q:"'먹다, 뛰다, 자다'처럼 움직임을 나타내는 품사는?", o:["동사","명사","관형사","조사"], a:"동사"},
+  {t:"품사", q:"'나, 너, 그것'처럼 이름을 대신하는 품사는?", o:["대명사","명사","수사","부사"], a:"대명사"},
+  {t:"품사", q:"'이, 그, 새, 헌'처럼 체언을 꾸며 주는 품사는?", o:["관형사","부사","조사","감탄사"], a:"관형사"},
+  {t:"품사", q:"'이/가, 을/를, 에서'처럼 홀로 쓰이지 못하는 품사는?", o:["조사","부사","동사","명사"], a:"조사"},
+  {t:"문장성분", q:"'하늘이 매우 푸르다.'에서 '하늘이'의 문장 성분은?", o:["주어","목적어","서술어","관형어"], a:"주어"},
+  {t:"문장성분", q:"'그는 학생이 아니다.'에서 '학생이'의 문장 성분은?", o:["보어","주어","목적어","부사어"], a:"보어", ex:"'되다/아니다' 앞에 오는 성분은 보어."},
+  {t:"문법", q:"'경찰이 도둑을 잡았다.'를 피동 표현으로 바꾼 것은?", o:["도둑이 경찰에게 잡혔다.","경찰이 도둑을 잡는다.","도둑이 경찰을 잡았다.","경찰은 도둑을 잡겠다."], a:"도둑이 경찰에게 잡혔다.", ex:"당하는 표현 = 피동."},
+
+  /* --- 추가 맞춤법 --- */
+  {t:"맞춤법", q:"맞춤법이 바른 문장은?", o:["열심히 하면 잘될 거야.","열심히 하면 잘될 꺼야.","열심히 하면 잘 될거야.","열심히 하면 잘될거야."], a:"열심히 하면 잘될 거야."},
+  {t:"맞춤법", q:"밑줄 친 부분이 바르게 쓰인 것은?", o:["숙제를 다 했어요.","숙제를 다 햇어요.","숙제를 다 헀어요.","숙제를 다 핬어요."], a:"숙제를 다 했어요."},
+  {t:"맞춤법", q:"'왜 그런지 모르게'라는 뜻의 바른 표기는?", o:["왠지","웬지","왠기","웬기"], a:"왠지", ex:"'왠지'만 맞고, '웬'은 '웬일'처럼 쓴다."},
+  {t:"맞춤법", q:"바르게 쓰인 것은?", o:["감기가 빨리 나았다.","감기가 빨리 낳았다.","감기가 빨리 낮았다.","감기가 빨리 나앗다."], a:"감기가 빨리 나았다.", ex:"낫다(병이 회복) / 낳다(아이를 낳다)."},
+
+  /* --- 추가 문학 --- */
+  {t:"문학", q:"'하늘이 울고 있다'처럼 사람이 아닌 것을 사람처럼 나타낸 표현법은?", o:["의인법","과장법","반복법","설의법"], a:"의인법"},
+  {t:"문학", q:"'찬란한 슬픔의 봄'처럼 서로 어울리지 않는 말을 붙여 쓴 표현법은?", o:["역설법","직유법","은유법","대구법"], a:"역설법", ex:"모순된 표현 속에 진실을 담는 방법."},
+  {t:"문학", q:"시에서 반복되는 말이나 글자 수로 생기는 가락을 뜻하는 말은?", o:["운율","주제","소재","배경"], a:"운율"},
+  {t:"문학", q:"소설에서 '나'가 이야기를 이끌어 가는 시점은?", o:["1인칭 주인공 시점","전지적 작가 시점","3인칭 관찰자 시점","작가 관찰자 시점"], a:"1인칭 주인공 시점"},
+  {t:"문학", q:"무대에서 공연하기 위해 쓴 글의 갈래는?", o:["희곡","소설","수필","시"], a:"희곡"},
+  {t:"문학", q:"3장 6구 45자 안팎으로 이루어진 우리 고유의 시 갈래는?", o:["시조","가사","향가","민요"], a:"시조"},
+
+  /* --- 추가 독해 --- */
+  {t:"독해", q:"다음 글의 주제로 알맞은 것은?", p:"플라스틱은 값이 싸고 편리하지만 잘 썩지 않는다. 바다로 흘러간 플라스틱은 잘게 부서져 물고기의 몸속에 쌓이고, 결국 사람에게 돌아온다.", o:["플라스틱 사용의 문제점","바다의 아름다움","물고기를 기르는 법","값싼 물건 고르는 법"], a:"플라스틱 사용의 문제점"},
+  {t:"독해", q:"글쓴이의 생각으로 알맞은 것은?", p:"책을 읽으면 다른 사람의 삶을 경험할 수 있다. 그래서 나는 하루에 삼십 분이라도 꼭 책을 읽으려고 한다.", o:["책 읽기는 꾸준히 할 만한 가치가 있다","책은 어렵기만 하다","책보다 영상이 낫다","책은 많이 살수록 좋다"], a:"책 읽기는 꾸준히 할 만한 가치가 있다"},
 ];
 
 const BANK_ETH = [
@@ -338,6 +622,44 @@ const BANK_ETH = [
   {t:"세계", q:"세계 시민이 지녀야 할 바람직한 태도는?", o:["다른 문화를 존중한다","내 나라만 최고로 여긴다","외국인을 차별한다","무관심하다"], a:"다른 문화를 존중한다"},
   {t:"환경", q:"미래 세대를 위해 자원을 아끼고 자연을 보호하는 개발 방식은?", o:["지속 가능한 발전","무분별한 개발","대량 소비","자원 낭비"], a:"지속 가능한 발전"},
   {t:"인권", q:"인간이 인간답게 살기 위해 마땅히 누려야 할 권리는?", o:["인권","권력","명예","재산"], a:"인권"},
+
+  /* --- 추가 인성 --- */
+  {t:"인성", q:"어려움을 참고 끝까지 견디는 태도는?", o:["인내","포기","방관","변덕"], a:"인내"},
+  {t:"인성", q:"자신을 내세우지 않고 남을 높이는 태도는?", o:["겸손","교만","무시","자랑"], a:"겸손"},
+  {t:"인성", q:"두려움을 이기고 옳은 일을 실천하는 마음은?", o:["용기","비겁","불안","질투"], a:"용기"},
+  {t:"인성", q:"자신이 맡은 일을 끝까지 해내려는 마음가짐은?", o:["책임감","이기심","의존심","경쟁심"], a:"책임감"},
+  {t:"인성", q:"남의 처지를 헤아려 도와주려는 마음은?", o:["배려","무관심","시기","경쟁"], a:"배려"},
+  {t:"인성", q:"남이 시키지 않아도 스스로 판단해 행동하는 것은?", o:["자율","타율","방종","복종"], a:"자율", ex:"자율은 스스로 세운 기준을 지키는 것. 마음대로 하는 방종과 다르다."},
+  {t:"인성", q:"받은 도움을 고맙게 여기는 마음은?", o:["감사","불평","당연","무시"], a:"감사"},
+  {t:"인성", q:"약속을 지켜 서로 믿을 수 있게 하는 것은?", o:["신뢰","의심","경계","비난"], a:"신뢰"},
+
+  /* --- 추가 가정·친구 --- */
+  {t:"가정", q:"가족 사이에 갈등이 생겼을 때 바람직한 해결 방법은?", o:["서로의 입장을 듣고 대화한다","말을 하지 않는다","집을 나간다","이긴 사람 뜻대로 한다"], a:"서로의 입장을 듣고 대화한다"},
+  {t:"친구", q:"진정한 우정에 대한 설명으로 알맞은 것은?", o:["서로의 잘못을 바르게 충고해 준다","잘못도 무조건 감싸 준다","이익이 될 때만 만난다","비밀을 퍼뜨린다"], a:"서로의 잘못을 바르게 충고해 준다"},
+  {t:"친구", q:"친구가 잘못된 행동을 하자고 할 때 바른 태도는?", o:["안 된다고 분명히 거절한다","그냥 따라 한다","모른 척한다","더 심하게 부추긴다"], a:"안 된다고 분명히 거절한다"},
+
+  /* --- 추가 사회·시민 --- */
+  {t:"사회", q:"법과 규칙을 스스로 잘 지키는 태도는?", o:["준법","위법","편법","방관"], a:"준법"},
+  {t:"사회", q:"공직자가 지녀야 할, 사사로운 이익을 탐하지 않는 태도는?", o:["청렴","탐욕","특혜","독선"], a:"청렴"},
+  {t:"사회", q:"장애인을 대하는 바람직한 태도는?", o:["동등한 사회 구성원으로 존중한다","불쌍하게만 여긴다","가까이하지 않는다","특별히 구경한다"], a:"동등한 사회 구성원으로 존중한다"},
+  {t:"사회", q:"다문화 사회에서 필요한 자세로 알맞은 것은?", o:["서로 다른 문화를 존중하며 함께 산다","우리 문화만 강요한다","외국인을 멀리한다","한 가지 문화로 통일한다"], a:"서로 다른 문화를 존중하며 함께 산다"},
+  {t:"사회", q:"이익과 부담을 각자의 몫에 맞게 나누는 것을 뜻하는 말은?", o:["공정","편애","특혜","차별"], a:"공정"},
+
+  /* --- 정보 윤리 --- */
+  {t:"정보윤리", q:"인터넷에서 남을 괴롭히거나 모욕하는 행위를 뜻하는 말은?", o:["사이버 폭력","정보 공유","온라인 학습","전자 상거래"], a:"사이버 폭력"},
+  {t:"정보윤리", q:"다른 사람이 만든 글·그림·음악을 함부로 쓰면 침해되는 권리는?", o:["저작권","참정권","재산권","청구권"], a:"저작권"},
+  {t:"정보윤리", q:"이름·주민등록번호처럼 나를 알아볼 수 있는 정보를 뜻하는 말은?", o:["개인 정보","공공 정보","광고 정보","통계 자료"], a:"개인 정보"},
+  {t:"정보윤리", q:"인터넷에서 본 정보를 대하는 바른 태도는?", o:["사실인지 확인한 뒤 받아들인다","모두 사실로 믿는다","재미있으면 바로 퍼뜨린다","댓글이 많으면 사실이다"], a:"사실인지 확인한 뒤 받아들인다"},
+
+  /* --- 환경·생명 --- */
+  {t:"환경", q:"기후 변화를 줄이기 위한 생활 속 실천으로 알맞은 것은?", o:["가까운 거리는 걷거나 자전거를 탄다","냉난방을 세게 튼다","일회용품을 많이 쓴다","음식을 자주 남긴다"], a:"가까운 거리는 걷거나 자전거를 탄다"},
+  {t:"환경", q:"자원을 아끼기 위한 3R에 해당하지 않는 것은?", o:["Refuse(거절)","Reduce(줄이기)","Reuse(다시 쓰기)","Recycle(재활용)"], a:"Refuse(거절)", ex:"3R은 줄이기·다시 쓰기·재활용."},
+  {t:"생명", q:"모든 생명은 소중하다는 태도로 알맞은 것은?", o:["동물도 함부로 대하지 않는다","힘없는 생명은 무시한다","쓸모 있는 생명만 지킨다","사람만 소중하다"], a:"동물도 함부로 대하지 않는다"},
+
+  /* --- 평화·직업 --- */
+  {t:"평화", q:"단순히 전쟁이 없는 상태를 넘어, 차별과 억압까지 없는 상태를 뜻하는 말은?", o:["적극적 평화","소극적 평화","정전","휴전"], a:"적극적 평화"},
+  {t:"직업", q:"직업을 고를 때 바람직한 태도로 알맞은 것은?", o:["적성과 흥미를 함께 고려한다","돈만 보고 고른다","남들이 하는 대로 고른다","부모님이 정해 준 대로만 한다"], a:"적성과 흥미를 함께 고려한다"},
+  {t:"직업", q:"어떤 일을 하든 맡은 일에 정성을 다하는 자세를 뜻하는 말은?", o:["직업 윤리","직업 차별","귀천 의식","무책임"], a:"직업 윤리"},
 ];
 
 const BANK_SCI = [
@@ -368,6 +690,41 @@ const BANK_SCI = [
   {t:"지구", q:"지구 둘레를 도는 지구의 위성은?", o:["달","태양","금성","혜성"], a:"달"},
   {t:"지구", q:"태양에서 가장 가까운 행성은?", o:["수성","금성","지구","화성"], a:"수성"},
   {t:"지구", q:"땅속의 마그마가 지표로 뿜어져 나오는 현상은?", o:["화산 분출","지진","해일","침식"], a:"화산 분출"},
+
+  /* --- 추가 물질·화학 --- */
+  {t:"물질", q:"드라이아이스가 액체를 거치지 않고 바로 기체가 되는 현상은?", o:["승화","융해","응고","액화"], a:"승화"},
+  {t:"물질", q:"같은 부피일 때 물질의 무거운 정도를 나타내는 값은?", o:["밀도","속력","온도","길이"], a:"밀도", ex:"밀도 = 질량 ÷ 부피."},
+  {t:"물질", q:"물에 잘 녹는 물질을 무엇이라 하는가?", o:["용질","용매","용액","혼합물"], a:"용질", ex:"소금물에서 소금=용질, 물=용매."},
+  {t:"화학", q:"산성 용액에 리트머스 종이를 넣으면 어떻게 변하는가?", o:["푸른색이 붉게 변한다","붉은색이 푸르게 변한다","색이 변하지 않는다","검게 변한다"], a:"푸른색이 붉게 변한다"},
+  {t:"화학", q:"염기성 용액의 성질로 알맞은 것은?", o:["미끈거리며 페놀프탈레인을 붉게 만든다","신맛이 나고 금속을 녹인다","색이 항상 붉다","전기가 통하지 않는다"], a:"미끈거리며 페놀프탈레인을 붉게 만든다"},
+  {t:"분리", q:"크기가 다른 알갱이가 섞인 혼합물을 거름종이로 나누는 방법은?", o:["거름","증발","자석 이용","크로마토그래피"], a:"거름"},
+  {t:"화학", q:"물질이 산소와 빠르게 반응하며 빛과 열을 내는 현상은?", o:["연소","증발","용해","확산"], a:"연소"},
+
+  /* --- 추가 생물 --- */
+  {t:"생물", q:"우리 몸에서 영양소를 잘게 분해해 흡수하는 과정은?", o:["소화","호흡","순환","배설"], a:"소화"},
+  {t:"생물", q:"온몸으로 피를 내보내는 펌프 역할을 하는 기관은?", o:["심장","폐","위","간"], a:"심장"},
+  {t:"생물", q:"공기 중의 산소를 받아들이고 이산화 탄소를 내보내는 기관은?", o:["폐","심장","콩팥","소장"], a:"폐"},
+  {t:"생물", q:"몸속 노폐물을 걸러 오줌을 만드는 기관은?", o:["콩팥","간","위","폐"], a:"콩팥"},
+  {t:"생물", q:"생태계에서 '벼 → 메뚜기 → 개구리 → 뱀'처럼 먹고 먹히는 관계는?", o:["먹이 사슬","공생","경쟁","기생"], a:"먹이 사슬"},
+  {t:"생물", q:"광합성에 반드시 필요한 것끼리 짝지은 것은?", o:["빛, 이산화 탄소, 물","빛, 산소, 소금","어둠, 물, 산소","열, 질소, 물"], a:"빛, 이산화 탄소, 물"},
+  {t:"생물", q:"생물이 자신을 닮은 자손을 남기는 현상은?", o:["생식","소화","순환","배설"], a:"생식"},
+
+  /* --- 추가 물리 --- */
+  {t:"물리", q:"빛이 물이나 유리를 지날 때 꺾이는 현상은?", o:["굴절","반사","분산","직진"], a:"굴절", ex:"물속 젓가락이 꺾여 보이는 이유."},
+  {t:"물리", q:"거울에 내 모습이 보이는 것은 빛의 어떤 성질 때문인가?", o:["반사","굴절","흡수","회절"], a:"반사"},
+  {t:"물리", q:"소리가 전달되려면 반드시 있어야 하는 것은?", o:["물질(매질)","빛","전기","자석"], a:"물질(매질)", ex:"진공에서는 소리가 전달되지 않는다."},
+  {t:"물리", q:"뜨거운 국에 숟가락을 담갔더니 손잡이가 뜨거워졌다. 열의 이동 방법은?", o:["전도","대류","복사","증발"], a:"전도"},
+  {t:"물리", q:"난로를 켜면 방 전체가 따뜻해지는 것은 공기가 움직이기 때문이다. 이 열의 이동 방법은?", o:["대류","전도","복사","반사"], a:"대류"},
+  {t:"물리", q:"전류의 세기를 나타내는 단위는?", o:["암페어(A)","볼트(V)","와트(W)","옴(Ω)"], a:"암페어(A)"},
+  {t:"물리", q:"높은 곳에 있는 물체가 가지는 에너지는?", o:["위치 에너지","운동 에너지","열에너지","빛에너지"], a:"위치 에너지"},
+
+  /* --- 추가 지구과학 --- */
+  {t:"지구", q:"지구의 내부 구조를 바깥쪽부터 바르게 나열한 것은?", o:["지각 - 맨틀 - 핵","핵 - 맨틀 - 지각","맨틀 - 지각 - 핵","지각 - 핵 - 맨틀"], a:"지각 - 맨틀 - 핵"},
+  {t:"지구", q:"마그마가 식어서 굳어 만들어진 암석은?", o:["화성암","퇴적암","변성암","석회암"], a:"화성암"},
+  {t:"지구", q:"자갈·모래·진흙이 쌓여 굳어 만들어진 암석은?", o:["퇴적암","화성암","변성암","현무암"], a:"퇴적암"},
+  {t:"지구", q:"낮과 밤이 생기는 까닭은?", o:["지구의 자전","지구의 공전","달의 공전","태양의 자전"], a:"지구의 자전"},
+  {t:"지구", q:"계절이 변하는 가장 큰 까닭은?", o:["지구 자전축이 기운 채로 공전하기 때문","지구가 태양에 가까워지기 때문","달이 지구를 돌기 때문","태양이 커지기 때문"], a:"지구 자전축이 기운 채로 공전하기 때문"},
+  {t:"지구", q:"성질이 다른 두 공기 덩어리가 만나는 경계면은?", o:["전선","기단","고기압","등압선"], a:"전선"},
 ];
 
 /* ===== 응원 메시지 ===== */
@@ -405,6 +762,7 @@ function loadHome(){
   $('best').textContent=best();
   $('streak').textContent=+(localStorage.getItem('gq_streak')||0);
   $('home-cheer').textContent=pick(HOME_CHEER);
+  checkBrowser();
 }
 function bumpStreak(){
   const today=new Date().toDateString();
@@ -426,13 +784,14 @@ function startGame(subject){
   const bank = BANKS[subject] || BANK_EN;
   deck=shuffle([...bank]).slice(0,LESSON);
   idx=0; hearts=MAXHEART; xp=0; combo=0; maxCombo=0; correctCnt=0; wrongList=[];
-  $('start').style.display='none'; $('result').style.display='none';
-  $('quiz').style.display='flex'; $('topbar').style.display='flex';
+  screen('quiz');
   render();
 }
 function goHome(){
-  $('quiz').style.display='none'; $('result').style.display='none'; $('topbar').style.display='none';
-  $('start').style.display='flex'; loadHome();
+  clearInterval(exTimer);
+  document.body.className='';
+  screen('start');
+  loadHome();
 }
 
 function render(){
@@ -506,8 +865,7 @@ function next(){
 
 function finish(cleared){
   $('bar').style.width='100%';
-  $('quiz').style.display='none'; $('topbar').style.display='none';
-  $('result').style.display='flex';
+  screen('result');
   if(best()<xp) localStorage.setItem('gq_best',xp);
   bumpStreak();
 
@@ -544,14 +902,307 @@ function finish(cleared){
   }
 }
 
-/* 영어 발음 (브라우저 TTS) */
+/* 영어 발음 (브라우저 TTS) — 안드로이드 대응 */
+let enVoice=null, enVoices=[], ttsWorked=false;
+function pickVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const vs=speechSynthesis.getVoices()||[];
+  enVoices=vs.filter(v=>/^en([-_]|$)/i.test(v.lang));
+  enVoice = enVoices.find(v=>/en[-_]US/i.test(v.lang) && /google/i.test(v.name))
+         || enVoices.find(v=>/en[-_]US/i.test(v.lang))
+         || enVoices.find(v=>/en[-_]GB/i.test(v.lang))
+         || enVoices[0] || null;
+}
+if('speechSynthesis' in window){
+  pickVoice(); speechSynthesis.onvoiceschanged=pickVoice;
+  [300,900,2000].forEach(t=>setTimeout(pickVoice,t));
+}
 function say(text){
+  if(!('speechSynthesis' in window)) return;
+  const s=window.speechSynthesis;
   try{
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-US'; u.rate=.9;
-    speechSynthesis.speak(u);
+    s.cancel();
+    setTimeout(()=>{   // 안드로이드 크롬: cancel 직후 speak가 씹히는 버그 회피
+      try{
+        if(!enVoice) pickVoice();
+        const u=new SpeechSynthesisUtterance(text);
+        u.lang=(enVoice&&enVoice.lang)||'en-US'; u.rate=.9; u.volume=1;
+        if(enVoice) u.voice=enVoice;
+        u.onstart=()=>{ttsWorked=true;};
+        s.speak(u);
+      }catch(e){}
+    },60);
   }catch(e){}
+}
+
+/* 발음 안 되는 브라우저(삼성 인터넷) 감지 → 크롬 안내 */
+function checkBrowser(){
+  const box=$('browserWarn'); if(!box) return;
+  const ua=navigator.userAgent;
+  const isSamsung=/SamsungBrowser/i.test(ua), isAndroid=/Android/i.test(ua);
+  const bad = isSamsung || !('speechSynthesis' in window) || (isAndroid && enVoices.length===0 && !ttsWorked);
+  box.style.display = bad ? 'flex' : 'none';
+  if(bad && isAndroid && location.protocol.startsWith('http')){
+    $('openChrome').href='intent://'+location.href.replace(/^https?:\/\//,'')+'#Intent;scheme=https;package=com.android.chrome;end';
+  }else if(bad){ $('openChrome').style.display='none'; }
+}
+[400,1200,2500].forEach(t=>setTimeout(checkBrowser,t));
+
+/* =========================================================
+   실전 모의고사 — 실제 중졸 검정고시 방식
+   과목당 25문항 · 40분 · 문항당 4점 · 평균 60점 합격
+   ========================================================= */
+const EXAM_ORDER = [
+  {k:'kor', pd:1, time:'09:00~09:40'},
+  {k:'en',  pd:3, time:'11:00~11:40'},
+  {k:'soc', pd:4, time:'12:40~13:20'},
+  {k:'sci', pd:5, time:'13:40~14:20'},
+  {k:'eth', pd:6, time:'14:40~15:20'},
+];
+const EXAM_N = 25, EXAM_SEC = 40*60, EXAM_KEY = 'gq_exam';
+const NUMS = ['①','②','③','④'];
+const SCREENS = ['start','quiz','result','examIntro','exam','examBreak','examReport'];
+let ex = null, exTimer = null;
+
+function screen(id){
+  SCREENS.forEach(s=>{ const e=$(s); if(e) e.style.display = (s===id)?'flex':'none'; });
+  $('topbar').style.display = (id==='quiz')?'flex':'none';
+}
+
+function examIntro(){
+  clearInterval(exTimer);
+  document.body.className='';
+  screen('examIntro');
+  $('examResume').style.display = localStorage.getItem(EXAM_KEY) ? 'block' : 'none';
+}
+
+function makeSheet(k){
+  const bank = BANKS[k] || [];
+  let pool = shuffle([...bank]);
+  while(pool.length < EXAM_N) pool = pool.concat(shuffle([...bank]));   // 문제 부족 시 보충
+  const qs = pool.slice(0, EXAM_N).map(q=>({
+    t:q.t, q:q.q, p:q.p||'', sp:q.sp||'', ex:q.ex||'', a:q.a, o:shuffle([...q.o])
+  }));
+  return {k, qs, ans:new Array(EXAM_N).fill(null), flags:new Array(EXAM_N).fill(false), submitted:false, used:0};
+}
+
+function examStart(one){
+  const list = one ? EXAM_ORDER.filter(x=>x.k===one) : EXAM_ORDER.slice();
+  ex = { one:!!one, si:0, qi:0, remain:EXAM_SEC, sheets:list.map(s=>makeSheet(s.k)) };
+  examSave();
+  examOpen();
+}
+
+function examOpen(){
+  const sheet = ex.sheets[ex.si];
+  document.body.className = sheet.k;      // 과목 테마색
+  screen('exam');
+  $('omr').classList.remove('on');
+  examRender();
+  examRunClock();
+}
+
+function examRunClock(){
+  clearInterval(exTimer);
+  examClock();
+  exTimer = setInterval(()=>{
+    ex.remain--;
+    examClock();
+    if(ex.remain % 10 === 0) examSave();
+    if(ex.remain <= 0){ clearInterval(exTimer); examSubmit(true); }
+  }, 1000);
+}
+function examClock(){
+  const r = Math.max(ex.remain, 0);
+  const el = $('exClock');
+  el.textContent = Math.floor(r/60) + ':' + String(r%60).padStart(2,'0');
+  el.className = 'clock' + (r<=60 ? ' danger' : (r<=300 ? ' warn' : ''));
+}
+
+function examRender(){
+  const sheet = ex.sheets[ex.si], q = sheet.qs[ex.qi];
+  const meta = EXAM_ORDER.find(x=>x.k===sheet.k);
+  $('exPd').textContent = meta.pd + '교시';
+  $('exSj').textContent = SUBJ[sheet.k];
+  $('exNo').textContent = (ex.qi+1) + ' / ' + EXAM_N;
+  $('exType').textContent = SUBJ[sheet.k] + ' · ' + q.t;
+  $('exQ').textContent = (ex.qi+1) + '. ' + q.q;
+
+  let extra = '';
+  if(q.p) extra += '<div class="passage">📖 ' + q.p + '</div>';
+  if(q.sp) extra += '<button class="speak-btn" onclick="say(\'' + q.sp.replace(/'/g,"\\'") + '\')">🔊 발음 듣기</button>';
+  $('exExtra').innerHTML = extra;
+
+  const box = $('exOpts'); box.innerHTML = '';
+  q.o.forEach((txt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt' + (sheet.ans[ex.qi] === txt ? ' sel' : '');
+    b.textContent = NUMS[i] + ' ' + txt;
+    b.onclick = ()=>{
+      sheet.ans[ex.qi] = (sheet.ans[ex.qi] === txt) ? null : txt;   // 다시 누르면 해제
+      examSave(); examRender();
+    };
+    box.appendChild(b);
+  });
+
+  $('exFlag').className = 'flagbtn' + (sheet.flags[ex.qi] ? ' on' : '');
+  $('exPrev').disabled = (ex.qi === 0);
+  $('exNext').textContent = (ex.qi === EXAM_N-1) ? '답안 제출 ✔' : '다음 →';
+  examDrawOmr();
+  $('examBody').scrollTop = 0;
+}
+
+function examGo(d){
+  if(d > 0 && ex.qi === EXAM_N-1){ examTrySubmit(); return; }
+  ex.qi = Math.max(0, Math.min(EXAM_N-1, ex.qi + d));
+  examRender();
+}
+function examJump(i){ ex.qi = i; examRender(); }
+function examFlag(){
+  const sheet = ex.sheets[ex.si];
+  sheet.flags[ex.qi] = !sheet.flags[ex.qi];
+  examSave(); examRender();
+}
+function examOmr(){ $('omr').classList.toggle('on'); }
+function examDrawOmr(){
+  const sheet = ex.sheets[ex.si], box = $('omr');
+  box.innerHTML = '';
+  for(let i=0;i<EXAM_N;i++){
+    const b = document.createElement('button');
+    b.textContent = i+1;
+    b.className = (sheet.ans[i] ? 'done ' : '') + (sheet.flags[i] ? 'flag ' : '') + (i===ex.qi ? 'cur' : '');
+    b.onclick = ()=>examJump(i);
+    box.appendChild(b);
+  }
+}
+
+function examTrySubmit(){
+  const sheet = ex.sheets[ex.si];
+  const blank = sheet.ans.filter(a=>a===null).length;
+  const msg = blank
+    ? '아직 안 푼 문제가 ' + blank + '개 있어.\n그래도 제출할까?'
+    : '답안을 제출할까?\n제출하면 이 과목은 못 고쳐.';
+  if(confirm(msg)) examSubmit(false);
+}
+
+function examSubmit(auto){
+  clearInterval(exTimer);
+  const sheet = ex.sheets[ex.si];
+  sheet.submitted = true;
+  sheet.used = EXAM_SEC - Math.max(ex.remain, 0);
+  examSave();
+  if(ex.si < ex.sheets.length - 1) examBreak(auto);
+  else examReport();
+}
+
+function examBreak(auto){
+  const sheet = ex.sheets[ex.si];
+  const meta = EXAM_ORDER.find(x=>x.k===sheet.k);
+  const nextSheet = ex.sheets[ex.si+1];
+  const nextMeta = EXAM_ORDER.find(x=>x.k===nextSheet.k);
+  document.body.className = '';
+  screen('examBreak');
+  $('brEmo').textContent = auto ? '⏰' : '☕';
+  $('brTitle').textContent = meta.pd + '교시 ' + SUBJ[sheet.k] + ' 종료';
+  $('brDone').textContent = auto
+    ? '시간 종료 — 자동 제출됐어'
+    : '답안 제출 완료 (' + Math.floor(sheet.used/60) + '분 ' + (sheet.used%60) + '초 걸림)';
+  $('brNext').innerHTML =
+    '다음은 <b>' + nextMeta.pd + '교시 ' + SUBJ[nextSheet.k] + '</b> (' + nextMeta.time + ')<br>' +
+    '실제 시험에도 쉬는 시간이 있어. 물 한 잔 마시고 와 💧<br>' +
+    '<span style="font-size:12.5px">점수는 전 과목 끝나면 한꺼번에 나와</span>';
+}
+function examNextSubject(){
+  ex.si++; ex.qi = 0; ex.remain = EXAM_SEC;
+  examSave(); examOpen();
+}
+function examPause(){
+  clearInterval(exTimer);
+  examSave();
+  goHome();
+}
+function examResume(){
+  let s = null;
+  try{ s = JSON.parse(localStorage.getItem(EXAM_KEY)); }catch(e){}
+  if(!s || !s.sheets){ alert('이어서 볼 시험이 없어.'); return; }
+  ex = s;
+  if(ex.sheets[ex.si].submitted){ examBreak(false); return; }   // 쉬는 시간에 멈췄던 경우
+  if(ex.remain <= 5) ex.remain = 5*60;                          // 시간이 거의 끝났으면 5분만 더
+  examOpen();
+}
+function examSave(){ try{ localStorage.setItem(EXAM_KEY, JSON.stringify(ex)); }catch(e){} }
+
+function examReport(){
+  clearInterval(exTimer);
+  try{ localStorage.removeItem(EXAM_KEY); }catch(e){}
+  document.body.className = '';
+  screen('examReport');
+
+  let sum = 0, cnt = 0;
+  const rows = [], wrongs = [];
+  ex.sheets.forEach(sh=>{
+    let c = 0; const w = [];
+    sh.qs.forEach((q,i)=>{ if(sh.ans[i] === q.a) c++; else w.push({q, mine:sh.ans[i]}); });
+    sum += c*4; cnt += c;
+    rows.push({k:sh.k, score:c*4, c});
+    if(w.length) wrongs.push({k:sh.k, w});
+  });
+  const n = ex.sheets.length;
+  const avg = Math.round(sum / n);
+
+  $('repAvg').textContent = avg + '점';
+  $('repSum').textContent = sum;
+  $('repCnt').textContent = cnt + '/' + (n*EXAM_N);
+
+  const v = $('repVerdict');
+  if(avg >= 96){
+    $('repEmo').textContent = '🏆';
+    v.className = 'verdict pass';
+    v.innerHTML = '합격 · 애니고 목표 달성!<span class="sub2">평균 ' + avg + '점 — 이 점수면 내신 환산도 최상위권이야 🎨</span>';
+  }else if(avg >= 90){
+    $('repEmo').textContent = '🎉';
+    v.className = 'verdict pass';
+    v.innerHTML = '합격!<span class="sub2">평균 ' + avg + '점 — 애니고 목표(96점)까지 ' + (96-avg) + '점 남았어</span>';
+  }else if(avg >= 60){
+    $('repEmo').textContent = '✅';
+    v.className = 'verdict pass';
+    v.innerHTML = '합격<span class="sub2">평균 ' + avg + '점 — 합격선은 넘었어. 이제 만점권으로 올려보자</span>';
+  }else{
+    $('repEmo').textContent = '💪';
+    v.className = 'verdict fail';
+    v.innerHTML = '아쉽게 불합격<span class="sub2">평균 ' + avg + '점 (합격 60점) — 틀린 것만 다시 보면 금방 올라</span>';
+  }
+
+  const bars = $('repBars'); bars.innerHTML = '';
+  rows.forEach(r=>{
+    const cls = r.score >= 96 ? '' : (r.score >= 60 ? 'mid' : 'low');
+    const div = document.createElement('div');
+    div.className = 'rep-row';
+    div.innerHTML =
+      '<span class="nm">' + SUBJ[r.k] + '</span>' +
+      '<span class="track"><span class="fill ' + cls + '" style="width:' + r.score + '%"></span></span>' +
+      '<span class="sc">' + r.score + '점</span>';
+    bars.appendChild(div);
+  });
+
+  const wb = $('repWrong'); wb.innerHTML = '';
+  if(!wrongs.length){
+    wb.innerHTML = '<div class="wrong-block"><b style="color:var(--green-d)">🎊 전 과목 만점! 틀린 게 하나도 없어</b></div>';
+  }else{
+    wrongs.forEach(g=>{
+      const box = document.createElement('div');
+      box.className = 'wrong-block';
+      let html = '<h4>❌ ' + SUBJ[g.k] + ' 틀린 문제 ' + g.w.length + '개</h4>';
+      g.w.forEach(item=>{
+        html += '<div class="wq">' + item.q.q +
+          '<br>내 답: <span class="mine">' + (item.mine || '(안 품)') + '</span>' +
+          ' / 정답: <span class="ans">' + item.q.a + '</span>' +
+          (item.q.ex ? '<div class="exp">💡 ' + item.q.ex + '</div>' : '') + '</div>';
+      });
+      box.innerHTML = html;
+      wb.appendChild(box);
+    });
+  }
 }
 
 $('quit').onclick=goHome;
