@@ -125,6 +125,21 @@
   #say.warn .en{font-size:15px;}
   #say.warn .sp{font-size:12px; color:var(--orange-d);}
 
+  /* 브라우저 안내 배너 */
+  #browserWarn{
+    width:100%; background:#fff0d9; border:2px solid var(--orange);
+    border-radius:16px; padding:12px 14px; text-align:left;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  #browserWarn .t{font-weight:900; font-size:15px; color:var(--orange-d);}
+  #browserWarn .d{font-size:12.5px; color:var(--ink); line-height:1.5;}
+  #browserWarn a{
+    display:block; text-align:center; text-decoration:none;
+    background:var(--orange); color:#fff; font-weight:900; font-size:15px;
+    padding:11px; border-radius:14px; box-shadow:0 3px 0 rgba(0,0,0,.15);
+  }
+  #browserWarn a:active{transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.15);}
+
   /* 발음 테스트 */
   .tts-test{
     background:none; border:none; color:var(--gray-d); font-size:13px;
@@ -195,6 +210,11 @@
     <div class="chips">
       <div class="chip" id="chipStar">⭐ 0 / 30</div>
       <div class="chip star" id="chipWord">📘 0 단어</div>
+    </div>
+    <div id="browserWarn" class="hide">
+      <div class="t">🔇 이 브라우저는 발음이 안 나와</div>
+      <div class="d">삼성 인터넷은 영어 읽어주기 기능이 없어.<br><b>크롬</b>으로 열면 발음이 나와!</div>
+      <a id="openChrome" href="#">크롬으로 열기 →</a>
     </div>
     <button class="tts-test" onclick="testTTS()">🔊 발음 테스트</button>
     <div id="ttsOut"></div>
@@ -543,6 +563,7 @@ function renderHome(){
   });
   document.getElementById("chipStar").textContent = "⭐ "+totStar+" / 30";
   document.getElementById("chipWord").textContent = "📘 "+totWord+" 단어";
+  checkBrowser();
 }
 
 function show(id){
@@ -659,6 +680,28 @@ function flip(idx, el){
     }
   }
 }
+
+/* ===== 발음 안 되는 브라우저(삼성 인터넷 등) 감지 → 크롬으로 유도 ===== */
+function checkBrowser(){
+  const ua = navigator.userAgent;
+  const isSamsung = /SamsungBrowser/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  const noTTS = !('speechSynthesis' in window);
+  // 삼성 인터넷이거나, TTS 자체가 없거나, 안드로이드인데 영어 음성이 하나도 없을 때
+  const bad = isSamsung || noTTS || (isAndroid && enVoices.length === 0 && !ttsWorked);
+  const box = document.getElementById("browserWarn");
+  box.classList.toggle("hide", !bad);
+
+  if(bad && isAndroid && location.protocol.startsWith("http")){
+    const link = document.getElementById("openChrome");
+    const bare = location.href.replace(/^https?:\/\//, "");
+    link.href = "intent://" + bare + "#Intent;scheme=https;package=com.android.chrome;end";
+  }else if(bad){
+    document.getElementById("openChrome").classList.add("hide");
+  }
+}
+// 음성 목록이 늦게 채워지므로 몇 번 재확인
+[400, 1200, 2500].forEach(t => setTimeout(()=>{ if(!document.getElementById("start").classList.contains("hide")) checkBrowser(); }, t));
 
 /* 발음 테스트 — 이 폰에서 영어 TTS가 되는지 진단 */
 function testTTS(){
